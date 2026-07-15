@@ -2,8 +2,6 @@
 
 #include <iostream>
 
-#include "Controller/order_controller.h"
-
 int OrderView::promptMenuChoice() const {
     std::cout << "\n[시료 주문]\n1. 주문 접수\n0. 뒤로가기\n선택: ";
     int choice = 0;

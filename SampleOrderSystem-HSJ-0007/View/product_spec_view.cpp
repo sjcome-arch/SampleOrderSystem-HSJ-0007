@@ -2,8 +2,6 @@
 
 #include <iostream>
 
-#include "Controller/product_spec_controller.h"
-
 int ProductSpecView::promptMenuChoice() const {
     std::cout << "\n[시료 관리]\n1. 등록\n2. 조회\n3. 검색\n0. 뒤로가기\n선택: ";
     int choice = 0;

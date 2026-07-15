@@ -3,10 +3,8 @@
 #include <string>
 #include <vector>
 
+#include "Controller/product_spec_types.h"
 #include "Model/product_spec.h"
-
-enum class RegisterProductSpecResult;
-struct RegisterProductSpecInput;
 
 // 시료 등록/조회/검색 화면 출력 (REQUIREMENT.md 5.2).
 class ProductSpecView {

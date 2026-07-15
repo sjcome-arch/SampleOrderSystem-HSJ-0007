@@ -2,13 +2,9 @@
 
 #include <vector>
 
+#include "Controller/order_types.h"
 #include "Model/order.h"
 #include "Model/product_spec.h"
-
-enum class ReserveOrderResult;
-struct ReserveOrderInput;
-struct ApproveNextResult;
-struct RejectNextResult;
 
 // 시료 주문 입력·확인 및 주문 승인/거절 화면 출력 (REQUIREMENT.md 5.3, 5.4).
 class OrderView {
