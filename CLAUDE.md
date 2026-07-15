@@ -38,7 +38,7 @@ msbuild SampleOrderSystem-HSJ-0007.slnx /p:Configuration=Debug /p:Platform=x64
   - `PRODUCING` → 생산 완료 시 → `CONFIRMED`
   - `CONFIRMED` → 출고 처리 시 → `RELEASED`
 - **주문 접수 큐**: `RESERVED` 주문은 별도 큐에 적재되며, 승인/거절 처리는 **FIFO** 순서로 진행한다.
-  생산 큐와는 별개의 큐이다 (자세한 내용은 [design.md](./docs/DESIGN/design.md) 참조).
+  생산 큐와는 별개의 큐이다 (자세한 내용은 [design_phase_3.md](./docs/DESIGN/design_phase_3.md) 참조).
 - **생산 라인**: 단일 라인, 시료 하나씩 생산. 생산 큐는 **FIFO**.
   - 실 생산량 = `ceil(부족분 / 수율)`
   - 총 생산 시간 = `평균 생산시간 * 실 생산량`

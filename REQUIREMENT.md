@@ -127,7 +127,7 @@
   - 주문번호, 시료(ID/시료명), 고객명, 주문 수량, 현재 상태(`RESERVED`)
 
 > 구현 참고: `RESERVED` 주문의 큐잉/처리 순서(FIFO) 등 상세 구현 방식은
-> [design.md - 주문 접수 큐](./docs/DESIGN/design.md#1-주문-접수-큐-reservation-queue) 참조.
+> [design_phase_3.md - 주문 접수 큐](./docs/DESIGN/design_phase_3.md#1-주문-접수-큐-reservation-queue) 참조.
 
 ### 5.4 주문 승인/거절
 
@@ -185,9 +185,10 @@
 
 > 구현 참고:
 > - 실 생산량 산정과 수율 처리 방식(생산 완료 후 불량 재판정을 하지 않는 이유 등)은
->   [design.md - 실 생산량과 수율 처리 방식](./docs/DESIGN/design.md#2-실-생산량과-수율-처리-방식) 참조.
+>   [design_phase_5.md - 실 생산량과 수율 처리 방식](./docs/DESIGN/design_phase_5.md#2-실-생산량과-수율-처리-방식) 참조.
 > - 생산 큐의 FIFO 스케줄링 상세 구현은
->   [design.md - 주문 접수 큐](./docs/DESIGN/design.md#1-주문-접수-큐-reservation-queue) (생산 큐와의 구분 표 포함) 참조.
+>   [design_phase_5.md - 생산 큐 스케줄링](./docs/DESIGN/design_phase_5.md#1-생산-큐-스케줄링-fifo)
+>   (주문 접수 큐와의 구분은 [design_phase_3.md](./docs/DESIGN/design_phase_3.md#주의-생산-큐production-queue와의-구분) 참조) 참조.
 
 ### 5.7 출고 처리
 
@@ -212,7 +213,8 @@
 ## 7. 미션 및 제출 관련 (참고)
 
 > 각 항목의 상세 구현 시나리오(디렉터리 구조, Repository 인터페이스, 도구 구성 방식 등)는
-> [design.md - 프로젝트 구현 시나리오](./docs/DESIGN/design.md#3-프로젝트-구현-시나리오-미션-12-대응) 참조.
+> [design.md - Phase 목록](./docs/DESIGN/design.md#2-phase-목록)을 통해 각 Phase별 설계 문서
+> (`design_phase_1.md` ~ `design_phase_8.md`) 참조.
 
 ### 미션 1: PoC 개발 (별도 Repository)
 
