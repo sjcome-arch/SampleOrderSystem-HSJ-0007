@@ -79,6 +79,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>$(SolutionDir)packages\gmock.1.11.0\lib\native\include;$(SolutionDir)SampleOrderSystem-HSJ-0007;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -104,6 +105,16 @@
     <ClCompile Include="$(SolutionDir)packages\gmock.1.11.0\lib\native\src\gtest\gtest-all.cc" />
     <ClCompile Include="$(SolutionDir)packages\gmock.1.11.0\lib\native\src\gmock\gmock-all.cc" />
     <ClCompile Include="$(SolutionDir)packages\gmock.1.11.0\lib\native\src\gmock\src\gmock_main.cc" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- 메인 프로젝트의 Model/Repository 소스를 그대로 공유(별도 static lib 프로젝트 없이 구성) -->
+    <ClCompile Include="$(SolutionDir)SampleOrderSystem-HSJ-0007\Model\order_status.cpp" />
+    <ClCompile Include="$(SolutionDir)SampleOrderSystem-HSJ-0007\Model\waiting_approval_queue.cpp" />
+    <ClCompile Include="$(SolutionDir)SampleOrderSystem-HSJ-0007\Model\production_line.cpp" />
+    <ClCompile Include="$(SolutionDir)SampleOrderSystem-HSJ-0007\Repository\json_value.cpp" />
+    <ClCompile Include="$(SolutionDir)SampleOrderSystem-HSJ-0007\Repository\product_spec_repository.cpp" />
+    <ClCompile Include="$(SolutionDir)SampleOrderSystem-HSJ-0007\Repository\order_repository.cpp" />
   </ItemGroup>
 
   <ItemGroup>

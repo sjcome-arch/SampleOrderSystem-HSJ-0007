@@ -81,6 +81,8 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -99,6 +101,8 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -115,6 +119,8 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -133,6 +139,8 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -143,7 +151,55 @@
     </Manifest>
   </ItemDefinitionGroup>
 
-  <ItemGroup></ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Model\order_status.cpp" />
+    <ClCompile Include="Model\waiting_approval_queue.cpp" />
+    <ClCompile Include="Model\production_line.cpp" />
+    <ClCompile Include="Repository\json_value.cpp" />
+    <ClCompile Include="Repository\product_spec_repository.cpp" />
+    <ClCompile Include="Repository\order_repository.cpp" />
+    <ClCompile Include="View\main_menu_view.cpp" />
+    <ClCompile Include="View\product_spec_view.cpp" />
+    <ClCompile Include="View\order_view.cpp" />
+    <ClCompile Include="View\monitoring_view.cpp" />
+    <ClCompile Include="View\production_line_view.cpp" />
+    <ClCompile Include="View\release_view.cpp" />
+    <ClCompile Include="View\dummy_data_generator_view.cpp" />
+    <ClCompile Include="Controller\main_menu_controller.cpp" />
+    <ClCompile Include="Controller\product_spec_controller.cpp" />
+    <ClCompile Include="Controller\order_controller.cpp" />
+    <ClCompile Include="Controller\monitoring_controller.cpp" />
+    <ClCompile Include="Controller\production_line_controller.cpp" />
+    <ClCompile Include="Controller\release_controller.cpp" />
+    <ClCompile Include="Controller\dummy_data_generator_controller.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Model\order.h" />
+    <ClInclude Include="Model\order_status.h" />
+    <ClInclude Include="Model\product_spec.h" />
+    <ClInclude Include="Model\waiting_approval_queue.h" />
+    <ClInclude Include="Model\production_line.h" />
+    <ClInclude Include="Repository\json_value.h" />
+    <ClInclude Include="Repository\i_product_spec_repository.h" />
+    <ClInclude Include="Repository\product_spec_repository.h" />
+    <ClInclude Include="Repository\i_order_repository.h" />
+    <ClInclude Include="Repository\order_repository.h" />
+    <ClInclude Include="View\main_menu_view.h" />
+    <ClInclude Include="View\product_spec_view.h" />
+    <ClInclude Include="View\order_view.h" />
+    <ClInclude Include="View\monitoring_view.h" />
+    <ClInclude Include="View\production_line_view.h" />
+    <ClInclude Include="View\release_view.h" />
+    <ClInclude Include="View\dummy_data_generator_view.h" />
+    <ClInclude Include="Controller\main_menu_controller.h" />
+    <ClInclude Include="Controller\product_spec_controller.h" />
+    <ClInclude Include="Controller\order_controller.h" />
+    <ClInclude Include="Controller\monitoring_controller.h" />
+    <ClInclude Include="Controller\production_line_controller.h" />
+    <ClInclude Include="Controller\release_controller.h" />
+    <ClInclude Include="Controller\dummy_data_generator_controller.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
