@@ -74,8 +74,23 @@ private:
 - 프로그램 시작 시 `main.cpp`는 `OrderRepository::findByStatus(PRODUCING)`을 주문번호 오름차순
   정렬해 그 순서대로 `enqueue`하여 `productionQueue_`를 재구성한다(같은 3.1 참조). 즉 재시작해도
   생산 큐는 항상 종료 직전과 동일한 순서로 복원된다.
-- 대기 주문 확인 시 각 대기 항목의 예상 완료 시간은, 자신보다 먼저 대기 중인 주문들의 (이미 계산된)
-  총 생산 시간까지 누적하여 계산한다.
+- front가 새로 정해질 때(생산 시작 시점, `enqueue()`로 빈 큐에 처음 들어올 때 또는
+  `completeCurrent()`로 다음 항목이 front가 될 때) 그 `Order`의 `productionStartedAt`을 현재
+  시각으로 채우고 저장한다.
+
+### 4.2 완료 예정 시간 계산
+
+- `Order`에 완료 예정 시간을 필드로 저장하지 않고, 조회(대기 주문 확인/현재 처리 중 조회) 시점에
+  아래 방식으로 계산한다 (필드 정의는 [design_phase_1.md - 3.2 `Order` 클래스](./design_phase_1.md#32-order-클래스-필드-정의-modelorderh--cpp) 참조).
+- 계산 방법: front부터 순서대로 `totalProductionTime`을 누적하되, 기준점(base)은 front의
+  `productionStartedAt`이다.
+  - front(현재 처리 중) 주문: 완료 예정 시간 = `productionStartedAt` + `totalProductionTime`
+  - front보다 뒤에 있는 i번째 대기 주문: 완료 예정 시간 = front의 완료 예정 시간 +
+    (front와 자신 사이에 있는 모든 주문의 `totalProductionTime` 합) + 자신의 `totalProductionTime`
+  - 즉 REQUIREMENT.md 5.6의 "자신보다 먼저 대기 중인 주문들의 예상 생산 시간까지 누적"을,
+    `productionStartedAt`이라는 절대 시각 기준점 위에서 누적합으로 구현한다.
+- 큐는 뒤에서만 추가되고 앞에서만 제거되므로, 이미 큐에 있는 항목들의 완료 예정 시간은 새 주문이
+  추가되어도 바뀌지 않는다 — 따라서 저장하지 않고 매번 계산해도 항상 같은 결과를 준다.
 
 ## 5. 검증 방법 (Verify)
 
@@ -84,6 +99,8 @@ private:
 - 생산 큐에 여러 건이 쌓였을 때 FIFO 순서대로 처리되는지, 대기 목록의 예상 완료 시간이 누적
   계산되는지 확인한다.
 - 생산 큐가 비어 있을 때 `WAITING` 상태와 "현재 처리 중인 주문 없음" 안내가 출력되는지 확인한다.
+- 여러 건이 대기 중일 때, 뒤쪽 대기 항목의 완료 예정 시간이 `productionStartedAt` 기준으로
+  앞선 모든 주문의 총 생산 시간을 정확히 누적한 값과 같은지 확인한다.
 
 ## 6. 리뷰 포인트 (Review)
 

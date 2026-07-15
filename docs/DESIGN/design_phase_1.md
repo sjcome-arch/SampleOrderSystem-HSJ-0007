@@ -138,6 +138,40 @@ SampleOrderSystem-HSJ-0007/           # vcxproj 루트
 이 두 원칙 덕분에 런타임 중에는 메모리 큐로 빠르게 처리하면서도, 파일이 항상 유일한 진실
 소스(single source of truth) 역할을 하여 둘 사이의 싱크가 어긋나지 않는다.
 
+### 3.2 `Order` 클래스 필드 정의 (`Model/order.h` / `.cpp`)
+
+```cpp
+class Order {
+public:
+    std::string orderId;             // 주문번호 (ORD-NNNNNN, design.md 6.1 참조)
+    std::string productSpecId;       // 시료 ID
+    std::string customerName;        // 고객명
+    int quantity;                    // 주문 수량
+    OrderStatus status;              // RESERVED/CONFIRMED/PRODUCING/REJECTED/RELEASED
+
+    // 아래 필드는 승인 처리(재고 부족, design_phase_4.md 2.1) 시점에만 채워진다.
+    int stockAtApproval;             // 승인 시점 재고 (REQUIREMENT.md 5.6 "주문 시 재고 수량")
+    int shortageQuantity;            // 부족분 = quantity - stockAtApproval
+    int actualProductionQuantity;    // 실 생산량 = ceil(shortageQuantity / 수율)
+    double totalProductionTime;      // 총 생산 시간 = 평균생산시간 * actualProductionQuantity
+    std::optional<Time> productionStartedAt; // 생산 큐 맨 앞(front)이 되어 실제 생산을 시작한 시각.
+                                              // 값이 있으면 "현재 생산 중"을 뜻하며, 완료 예정 시간
+                                              // 계산의 기준점이 된다(design_phase_5.md 참조).
+
+    // 아래 필드는 출고 처리(design_phase_6.md) 시점에만 채워진다.
+    std::optional<Time> releasedAt;  // 출고 처리일시
+};
+```
+
+- `stockAtApproval`~`totalProductionTime`은 재고가 충분해 즉시 `CONFIRMED`로 전환된 주문에는
+  채워지지 않는다(값 없음/기본값).
+- `productionStartedAt`은 큐의 맨 앞(front) 항목에만 값이 있고, 아직 대기 중인 항목은 비어 있다
+  (`std::nullopt`). 생산 완료(`completeCurrent()`) 후 다음 항목이 front가 될 때 그 시점의 현재
+  시각으로 채워진다.
+- 완료 예정 시간(대기 목록 출력용)은 `productionStartedAt`이나 `totalProductionTime`처럼 필드로
+  저장하지 않고, front의 `productionStartedAt` + 큐 앞쪽부터의 `totalProductionTime` 누적 합으로
+  **조회 시점에 매번 계산**한다(값이 결정적이고 큐가 뒤에서만 추가되므로 저장할 필요가 없다).
+
 ## 4. 검증 방법 (Verify)
 
 - 빌드: `msbuild SampleOrderSystem-HSJ-0007.slnx /p:Configuration=Debug /p:Platform=x64`가 경고 없이 성공한다.
