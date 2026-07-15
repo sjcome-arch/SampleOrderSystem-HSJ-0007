@@ -13,11 +13,16 @@ std::vector<ReleasableOrderRow> ReleaseController::releasableList() const {
 
     std::vector<ReleasableOrderRow> rows;
     rows.reserve(orders.size());
-    for (size_t i = 0; i < orders.size(); ++i) {
+    for (const Order& order : orders) {
+        // 시료가 삭제되어 조회되지 않으면 출고 가능 목록에서 제외한다(크래시 방지).
+        auto specOpt = productSpecRepository_.findById(order.productSpecId);
+        if (!specOpt.has_value()) {
+            continue;
+        }
         ReleasableOrderRow row;
-        row.sequence = static_cast<int>(i + 1);
-        row.order = orders[i];
-        row.spec = productSpecRepository_.findById(orders[i].productSpecId).value();
+        row.sequence = static_cast<int>(rows.size() + 1);
+        row.order = order;
+        row.spec = *specOpt;
         rows.push_back(row);
     }
     return rows;
