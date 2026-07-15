@@ -49,14 +49,18 @@ std::optional<std::pair<Order, ProductSpec>> OrderController::peekNextForApprova
 }
 
 ApproveNextResult OrderController::approveNext() {
-    auto dequeued = waitingApprovalQueue_.dequeue();
-    if (!dequeued.has_value()) {
+    auto snapshot = waitingApprovalQueue_.snapshot();
+    if (snapshot.empty()) {
+        return ApproveNextResult{true, Order{}};
+    }
+    // 시료가 삭제되어 조회되지 않으면 큐에서 꺼내지 않고(데이터 유실 방지) 처리 불가로 반환한다.
+    auto specOpt = productSpecRepository_.findById(snapshot.front().productSpecId);
+    if (!specOpt.has_value()) {
         return ApproveNextResult{true, Order{}};
     }
 
-    Order order = *dequeued;
-    auto specOpt = productSpecRepository_.findById(order.productSpecId);
-    ProductSpec spec = specOpt.value();
+    Order order = *waitingApprovalQueue_.dequeue();
+    ProductSpec spec = *specOpt;
 
     if (spec.availableStock >= order.quantity) {
         spec.availableStock -= order.quantity;
