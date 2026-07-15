@@ -15,10 +15,29 @@
 ## 2. 구현 범위
 
 - 상태별 주문 현황: `RESERVED`/`CONFIRMED`/`PRODUCING`/`RELEASED` 건수 집계 (`REJECTED` 제외)
-- 재고 현황: 시료별 현재 재고와 상태(여유/부족/고갈) 표기
+- 재고 현황: 시료별로 시료명, `stock`(물리적 재고), `availableStock`(가용 재고), 상태(여유/부족/고갈)를
+  함께 출력한다.
+  - REQUIREMENT.md 5.5는 "재고(수량)" 하나만 언급하지만, `stock`만 보여주면 "재고는 100인데 왜
+    부족이지?" 같은 혼란이 생길 수 있어(2.1의 판정 기준 참조) `availableStock`도 함께 보여주기로
+    한다(요구사항 문구를 넘어선 구현 결정).
   - 여유: 주문 대비 재고 충분, 부족: 주문 대비 재고 수량 부족, 고갈: 재고 수량 0
 
-### 2.1 사용하는 자료구조
+### 2.1 여유/부족/고갈 판정 기준
+
+- REQUIREMENT.md의 "주문 대비 재고"는 `ProductSpec.stock`(물리적 재고)이 아니라
+  `ProductSpec.availableStock`(가용 재고)을 기준으로 판정한다 — `availableStock`이 이미 "재고 중
+  기존 `CONFIRMED` 주문에 배정되고 남은 양"을 뜻하기 때문이다(필드 구분은
+  [design_phase_2.md - 2.1](./design_phase_2.md#21-productspec-모델-modelproduct_spech--cpp) 참조).
+- 판정 순서 (REQUIREMENT.md 5.5의 "고갈: 재고 수량이 0"은 물리적 재고 기준이므로 최우선 적용):
+  1. `stock == 0` → **고갈**
+  2. `availableStock == 0` (하지만 `stock > 0`) → **부족** — 물리적 재고는 있지만 전부 기존
+     확정 주문에 배정되어, 새 주문에는 즉시 내줄 수 있는 몫이 없다는 뜻이다.
+  3. 그 외(`availableStock > 0`) → **여유** — 기존 확정 주문에 배정하고도 남은 가용 재고가 있다.
+- 예시: [design_phase_4.md - 2.2 예시 시나리오](./design_phase_4.md#22-예시-시나리오-stockavailablestock-추적)에서
+  두 번째 주문까지 처리된 시점(`stock=100`, `availableStock=40`)은 "여유"이고, 세 번째 주문이
+  승인되어 `availableStock=0`이 된 시점은(`stock=100`이라도) "부족"이다.
+
+### 2.2 사용하는 자료구조
 
 - `WaitingApprovalQueue`/`ProductionLine`의 메모리 큐를 직접 순회하지 않는다. 모니터링에 필요한
   정보(상태별 건수, 재고 여유/부족/고갈)는 FIFO 순서와 무관하므로,
@@ -38,6 +57,8 @@
 
 - `REJECTED` 주문이 상태별 집계에 포함되지 않는지 확인한다.
 - 재고 0인 시료가 "고갈"로, 주문 대비 부족한 시료가 "부족"으로 정확히 분류되는지 확인한다.
+- 재고 현황 출력에 `stock`과 `availableStock`이 각각 올바른 값으로 함께 표시되는지 확인한다
+  (예: `stock=100`, `availableStock=0`인 시료가 "부족"으로 표시되며 두 수치가 화면에 다 보이는지).
 
 ## 4. 리뷰 포인트 (Review)
 

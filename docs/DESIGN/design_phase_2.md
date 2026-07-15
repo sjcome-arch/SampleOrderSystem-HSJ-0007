@@ -24,10 +24,23 @@ public:
     std::string productSpecId;  // 시료 ID (채번 규칙은 design.md 5. TBD 참조)
     std::string name;           // 시료명
     double avgProductionTime;   // 평균 생산시간(분), 양수
-    double yield;               // 수율, 0 초과 ~ 1 이하
-    int stock;                  // 현재 재고 수량, 0 이상
+    double yield;                // 수율, 0 초과 ~ 1 이하
+    int stock;                   // 실제 재고 수량(물리적 창고 수량). 생산 완료 시에만 증가하고,
+                                  // 출고(RELEASED) 시에만 감소한다(design_phase_6.md 참조). 승인/확정
+                                  // 시점에는 변하지 않는다.
+    int availableStock;           // 가용 재고: stock 중 아직 어떤 CONFIRMED 주문에도 배정되지 않은
+                                  // 수량. 등록 시 stock과 같은 값으로 초기화한다. 승인 처리(Phase 4)와
+                                  // 생산 완료(Phase 5)마다 갱신되며, 재고 충분/부족 판단과 모니터링의
+                                  // 여유/부족 판정(design_phase_7.md 참조)에 stock 대신 이 값을 쓴다.
 };
 ```
+
+- `stock`과 `availableStock`은 서로 다른 개념이다. `stock`은 "창고에 실제로 있는 물리적 수량"이고,
+  `availableStock`은 "그중 아직 어떤 주문에도 배정되지 않아 새 주문에 쓸 수 있는 수량"이다.
+  두 필드가 갱신되는 시점과 정확한 계산 방법은 [design_phase_4.md - 2.1](./design_phase_4.md#21-승인재고-부족-시-실-생산량-계산-저장-생산-큐-등록)과
+  [design_phase_5.md - 3](./design_phase_5.md#3-실-생산량과-수율-처리-방식)에서 구체적인 예시와 함께 정의한다.
+- 시료 등록 시 `availableStock`은 항상 `stock`과 동일한 값으로 초기화한다(아직 아무 주문도 없으므로
+  전량 가용).
 
 ### 2.2 `ProductSpecController` 메뉴 흐름 (`Controller/product_spec_controller.h` / `.cpp`)
 

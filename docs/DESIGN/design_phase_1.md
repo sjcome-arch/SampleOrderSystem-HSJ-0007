@@ -155,8 +155,11 @@ public:
     OrderStatus status;              // RESERVED/CONFIRMED/PRODUCING/REJECTED/RELEASED
 
     // 아래 필드는 승인 처리(재고 부족, design_phase_4.md 2.1) 시점에만 채워진다.
-    int stockAtApproval;             // 승인 시점 재고 (REQUIREMENT.md 5.6 "주문 시 재고 수량")
-    int shortageQuantity;            // 부족분 = quantity - stockAtApproval
+    int availableStockAtApproval;    // 승인 시점의 ProductSpec.availableStock 값(가용 재고).
+                                      // REQUIREMENT.md 5.6 "주문 시 재고 수량"에 해당하지만, 실제로는
+                                      // 물리적 재고(stock)가 아니라 가용 재고를 기준으로 계산한다
+                                      // (design_phase_2.md - stock/availableStock 구분 참조).
+    int shortageQuantity;            // 부족분 = quantity - availableStockAtApproval
     int actualProductionQuantity;    // 실 생산량 = ceil(shortageQuantity / 수율)
     double totalProductionTime;      // 총 생산 시간 = 평균생산시간 * actualProductionQuantity
     std::optional<Time> productionStartedAt; // 생산 큐 맨 앞(front)이 되어 실제 생산을 시작한 시각.

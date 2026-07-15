@@ -29,14 +29,20 @@
 ## 3. 실 생산량과 수율 처리 방식
 
 - 실 생산량은 `ceil(부족분 / 수율)`로 계산하며, 이 값은 수율을 반영해 **미리 여유분까지 포함한 수치**이다.
-- 따라서 생산이 완료되면 실 생산량 전체를 정상 양산품으로 간주하여 재고에 더한다.
+  이 계산은 이미 승인 시점(Phase 4)에 끝나 `Order.actualProductionQuantity`에 저장되어 있다.
+- 생산이 완료되면 실 생산량 전체를 정상 양산품으로 간주하여 `ProductSpec.stock`에 더한다.
   생산 완료 시점에 수율을 다시 적용하여 불량품을 걸러내는 추가 시뮬레이션(랜덤 손실 등)은 하지 않는다.
-  - 예: 부족분 50, 수율 0.5 → 실 생산량 = `ceil(50/0.5)` = 100개, 생산 완료 시 100개 모두 재고로 반영
+  - 예: 부족분 50, 수율 0.5 → 실 생산량 = `ceil(50/0.5)` = 100개, 생산 완료 시 100개 모두 `stock`에 반영
 - 즉 수율은 "생산 계획 수량 산정"에만 사용되고, "생산 결과의 품질 판정"에는 사용되지 않는다.
 - 수율이 1 미만이면 실 생산량이 부족분보다 많아지며(위 예시에서 100 > 50), 이 초과분(여분)도
   전체 재고에 합산한다. 즉 재고 갱신 시 "부족분만큼만" 더하는 것이 아니라 "실 생산량 전체"를 더해야 한다.
-  - 예시 기준: 재고 += 100 (부족분 50이 아니라 실 생산량 100 전체)
-  - 여분(100 - 50 = 50)은 해당 주문에는 사용되지 않고 다른 주문을 위한 재고로 남는다.
+  - 예시 기준: `stock += 100` (부족분 50이 아니라 실 생산량 100 전체)
+- **`stock`과 `availableStock`을 함께 갱신**한다 (필드 구분은 [design_phase_2.md - 2.1](./design_phase_2.md#21-productspec-모델-modelproduct_spech--cpp) 참조):
+  - `stock += actualProductionQuantity` (실 생산량 전체)
+  - `availableStock += (actualProductionQuantity - shortageQuantity)` (여분만). 이 주문의
+    `shortageQuantity`만큼은 이미 승인 시점에 이 주문 몫으로 확정된 수요이므로 가용 재고에
+    다시 포함시키지 않는다 — 여분(100 - 50 = 50)만 다른 주문을 위한 가용 재고로 남는다
+    (승인 시 `availableStock`이 0으로 떨어진 이유는 [design_phase_4.md - 2.1](./design_phase_4.md#21-승인재고-부족-시-실-생산량-계산-저장-생산-큐-등록) 참조).
 - 생산 완료 시 주문 상태 `PRODUCING` → `CONFIRMED` 로 전환한다.
 
 ## 4. 구현 범위
@@ -67,8 +73,9 @@ private:
   `main.cpp`에서 단 하나만 생성해 `OrderController`(Phase 4, 승인 시 `enqueue` 호출)와
   `ProductionLineController`(Phase 5, 조회/`completeCurrent` 호출)에 공유 주입한다
   ([design_phase_1.md - 의존 방향](./design_phase_1.md) 참조. `WaitingApprovalQueue`와 동일한 패턴).
-- `completeCurrent()`는 **먼저** `productSpecRepository_.update(...)`(재고 반영)와
-  `orderRepository_.update(...)`(상태 변경 저장)를 호출해 파일에 반영하고, **저장이 성공한
+- `completeCurrent()`는 **먼저** `productSpecRepository_.update(...)`를 호출해 `stock`(전체
+  실 생산량만큼 증가)과 `availableStock`(여분만큼 증가, 3절 참조)을 함께 반영하고,
+  `orderRepository_.update(...)`(상태 변경 저장)까지 호출해 파일에 반영한 뒤, **저장이 성공한
   뒤에만** `productionQueue_.pop()`한다(저장 순서 원칙은
   [design_phase_1.md - 3.1 메모리 큐와 파일 동기화 원칙](./design_phase_1.md#31-메모리-큐와-파일-동기화-원칙) 참조).
 - 마찬가지로 `enqueue()`도 호출자(Phase 4)가 `OrderRepository::update`로 먼저 저장한 뒤 호출하는
@@ -130,8 +137,11 @@ private:
   앞선 모든 주문의 총 생산 시간을 정확히 누적한 값과 같은지 확인한다.
 - 완료 예정 시각이 지난 뒤 아무 메뉴에나 진입했을 때 `tick()`이 호출되어 해당 주문이 자동으로
   `CONFIRMED`로 전환되는지, 여러 건이 동시에 기한을 넘겼을 때도 모두 처리되는지 확인한다.
+- 생산 완료 후 `stock`은 실 생산량 전체만큼, `availableStock`은 여분(실 생산량 - 부족분)만큼만
+  증가하는지 확인한다([design_phase_4.md - 2.2 예시 시나리오](./design_phase_4.md#22-예시-시나리오-stockavailablestock-추적)의 3번째 주문 생산 완료 단계와 값이 일치하는지).
 
 ## 6. 리뷰 포인트 (Review)
 
 - 생산 완료 후 재고 갱신이 "부족분"이 아니라 "실 생산량 전체"로 되어 있는지(가장 흔한 실수 지점).
 - 생산 큐와 주문 접수 큐(Phase 3)가 실수로 하나의 자료구조로 합쳐지지 않았는지.
+- `stock`과 `availableStock`을 혼동해서 같은 값으로 취급하고 있지 않은지(둘은 서로 다른 필드다).

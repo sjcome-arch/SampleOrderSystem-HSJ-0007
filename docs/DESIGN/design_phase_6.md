@@ -31,12 +31,30 @@
   `OrderRepository::findByStatus(CONFIRMED)`로 조회한 뒤 상태를 `RELEASED`로 바꾸고
   `OrderRepository::update()`로 저장하기만 하면 된다.
 
+### 2.2 출고 시 `stock` 차감
+
+- `ProductSpec.stock`(물리적 재고)은 **출고(RELEASED) 처리 시점에만 감소**한다. 승인/확정
+  (`CONFIRMED`) 시점에는 `stock`을 건드리지 않고 `availableStock`(가용 재고)만 줄어든다는 점은
+  이미 [design_phase_4.md - 2.1](./design_phase_4.md#21-승인재고-부족-시-실-생산량-계산-저장-생산-큐-등록)/[design_phase_2.md - 2.1](./design_phase_2.md#21-productspec-모델-modelproduct_spech--cpp)에서
+  정했다. 출고는 그 물리적 재고가 실제로 창고에서 나가는 시점이므로, 여기서 비로소 `stock`을
+  차감한다.
+- 처리 절차: 출고할 주문을 고른 뒤, **먼저** `ProductSpecRepository::update`로
+  `stock -= order.quantity`를 반영하고, 이어서 `OrderRepository::update`로 `status = RELEASED`,
+  `releasedAt = now`를 저장한다(저장 순서 원칙은 [design_phase_1.md - 3.1](./design_phase_1.md#31-메모리-큐와-파일-동기화-원칙) 참조).
+- `availableStock`은 출고 시점에 건드리지 않는다 — 이 주문의 수요는 이미 승인 시점에
+  `availableStock`에서 빠졌으므로(또는 부족분이었다면 생산 완료 시점에 반영되었으므로), 출고는
+  물리적 재고 이동일 뿐 가용 재고 계산에는 영향이 없다.
+
 ## 3. 검증 방법 (Verify)
 
 - 출고 처리 후 해당 주문이 `RELEASED`로 바뀌고, 갱신된 출고 가능 목록에서 제외되는지 확인한다.
 - `PRODUCING` 상태 주문은 출고 대상 목록에 나타나지 않는지 확인한다(Phase 5에서 `CONFIRMED`로
   전환되어야만 출고 가능).
+- 출고 처리 후 `ProductSpec.stock`이 출고 수량만큼 정확히 감소하는지, `availableStock`은
+  변하지 않는지 확인한다.
 
 ## 4. 리뷰 포인트 (Review)
 
 - 상태명이 `RELEASED`로 일관되게 사용되는지 (REQUIREMENT.md 원문의 `RELEASE` 표기 혼용 이슈 없이).
+- `stock` 차감이 승인/확정 시점이 아니라 출고 시점에만 일어나는지, `availableStock`을 실수로
+  함께 건드리고 있지 않은지.
