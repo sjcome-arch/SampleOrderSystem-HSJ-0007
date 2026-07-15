@@ -1,6 +1,43 @@
 #include "View/product_spec_view.h"
 
 #include <iostream>
+#include <sstream>
+#include <string>
+
+namespace {
+
+// UTF-8 기준 터미널 표시 폭(한글 등 멀티바이트 문자는 2칸으로 계산)을 구해 열을 맞춘다.
+size_t displayWidth(const std::string& text) {
+    size_t width = 0;
+    for (size_t i = 0; i < text.size();) {
+        unsigned char c = static_cast<unsigned char>(text[i]);
+        size_t bytes = 1;
+        if ((c & 0xE0) == 0xC0) {
+            bytes = 2;
+        } else if ((c & 0xF0) == 0xE0) {
+            bytes = 3;
+        } else if ((c & 0xF8) == 0xF0) {
+            bytes = 4;
+        }
+        width += (bytes == 1) ? 1 : 2;
+        i += bytes;
+    }
+    return width;
+}
+
+template <typename T>
+std::string toStr(const T& value) {
+    std::ostringstream oss;
+    oss << value;
+    return oss.str();
+}
+
+std::string padColumn(const std::string& text, size_t columnWidth) {
+    size_t width = displayWidth(text);
+    return text + std::string(width < columnWidth ? columnWidth - width : 1, ' ');
+}
+
+}  // namespace
 
 int ProductSpecView::promptMenuChoice() const {
     std::cout << "\n[시료 관리]\n1. 등록\n2. 조회\n3. 검색\n0. 뒤로가기\n선택: ";
@@ -58,10 +95,12 @@ void ProductSpecView::showList(const std::vector<ProductSpec>& specs) const {
         std::cout << "등록된 시료가 없습니다." << std::endl;
         return;
     }
-    std::cout << "ID\t시료명\t평균생산시간\t수율\t재고\t가용재고" << std::endl;
+    std::cout << padColumn("ID", 10) << padColumn("시료명", 14) << padColumn("평균생산시간", 14)
+               << padColumn("수율", 8) << padColumn("재고", 8) << padColumn("가용재고", 8) << std::endl;
     for (const auto& spec : specs) {
-        std::cout << spec.productSpecId << "\t" << spec.name << "\t" << spec.avgProductionTime << "\t"
-                   << spec.yield << "\t" << spec.stock << "\t" << spec.availableStock << std::endl;
+        std::cout << padColumn(spec.productSpecId, 10) << padColumn(spec.name, 14)
+                   << padColumn(toStr(spec.avgProductionTime), 14) << padColumn(toStr(spec.yield), 8)
+                   << padColumn(toStr(spec.stock), 8) << padColumn(toStr(spec.availableStock), 8) << std::endl;
     }
 }
 
