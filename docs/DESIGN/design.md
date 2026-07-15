@@ -142,12 +142,33 @@ SampleOrderSystem-HSJ-0007/           # vcxproj 루트
 | 주안점 | 대응 방안 |
 |---|---|
 | CLAUDE.md, PRD.md 등 문서 관리 | `REQUIREMENT.md`(PRD 역할) / `CLAUDE.md`(에이전트 가이드) / `docs/DESIGN/design.md`(구현 설계, 본 문서)로 문서 체계를 구성하고, 요구사항·설계 변경 시마다 즉시 갱신한다. |
-| Harness 도입 | 단위 테스트를 실제로 실행/집계할 수 있는 테스트 하니스를 구성한다. vcpkg로 `Catch2`(또는 `GoogleTest`)를 추가하고, 별도 `Tests` vcxproj(또는 CTest 연동)를 솔루션에 추가해 `msbuild` 한 번으로 전체 테스트가 실행되도록 한다. |
-| Test | Model 계층(상태 전이, 실 생산량/수율 계산, FIFO 큐 동작)부터 우선 테스트하고, Repository CRUD, Controller 분기(재고 충분/부족)까지 확장한다. 테스트 파일은 `Tests/Model/*.cpp`, `Tests/Repository/*.cpp`로 대상 계층별로 분리한다. |
+| Harness 도입 | 단위 테스트를 실제로 실행/집계할 수 있는 테스트 하니스를 구성한다. vcpkg로 `Catch2`(또는 `GoogleTest`)를 추가하고, 별도 `Tests` vcxproj(또는 CTest 연동)를 솔루션에 추가해 `msbuild` 한 번으로 전체 테스트가 실행되도록 한다. AI 작업 지시 시 "개발 → Verify → Human Review" 순서를 지키는 구체적 절차는 [vierify.md](../VIERIFY/vierify.md) 참조. |
+| Test | Model 계층(상태 전이, 실 생산량/수율 계산, FIFO 큐 동작)부터 우선 테스트하고, Repository CRUD, Controller 분기(재고 충분/부족)까지 확장한다. 테스트 파일은 `Tests/Model/*.cpp`, `Tests/Repository/*.cpp`로 대상 계층별로 분리한다. TDD로 진행할 경우 RED(테스트 작성)–GREEN(최소 구현)–REVIEW(사람 검토) 사이클을 따른다. |
 | Clean Code | 코딩 컨벤션([CLAUDE.md - 코딩 컨벤션 및 구현 규칙](../../CLAUDE.md#코딩-컨벤션-및-구현-규칙))을 지키고, 함수/클래스 단위를 작게 유지한다(PR 100라인 이내). |
 | Commit 이력 | 기능 단위로 `[feature]/[fix]/[refactor]/[test]/[docs]/[chore]` 접두사를 사용해 커밋하며, 커밋 전 항상 사용자 리뷰를 받는다([CLAUDE.md - 커밋 전 리뷰 절차](../../CLAUDE.md#커밋-전-리뷰-절차)). |
 
-## 4. 향후 구현 결정 사항 (TBD)
+## 4. Phase별 개발 문서 체계
+
+- 대상: 개발 프로세스 규칙 (요구사항이 아닌 진행 방식 규칙, `[CRA_AI] Day1_6_Agentic Engineering.pdf`
+  "Phase 설계"/"PLAN.md" 내용 참고)
+- 기능을 한 번에 크게 구현하면 AI 결과물의 품질이 떨어지고 사람이 리뷰하기도 어려워진다.
+  따라서 기능을 **Phase 단위**로 쪼개어 진행한다.
+- Phase별로 아래 2개 문서를 사용한다.
+  - `docs/PLAN/phaseN.md`: 해당 Phase의 목적(Why), 수행 작업(What), 검증 방법(Verify),
+    리뷰 포인트(Review)를 기록한다. **Phase 완료 후에는 삭제해도 되는 임시 문서**이다
+    (구현이 끝나면 코드 자체가 진실의 원천이 되므로 문서의 역할은 끝난다).
+  - `docs/design/phaseN.md`: 해당 Phase의 구체적 설계(클래스/함수 시그니처, 변경될 파일
+    목록 등)를 기록한다. 완료 후에도 참고용으로 남겨도 무방하다.
+- Phase 진행 순서:
+  1. PLAN 작성 (AI) → 사람 검토
+  2. 설계 문서 작성 (AI) → 사람 검토
+  3. 구현 지시
+  4. **Verify** ([vierify.md](../VIERIFY/vierify.md) 참조)
+  5. 사람 리뷰 → 커밋 (커밋 전 리뷰 절차는 [CLAUDE.md](../../CLAUDE.md#커밋-전-리뷰-절차) 참조)
+- Phase 분할 기준(대략): 메뉴 1개(REQUIREMENT.md 5.1~5.7 중 하나) 또는 그 하위 기능 1~2개
+  정도를 한 Phase로 삼는다. 예: "5.2 시료 관리 - 시료 등록"만으로 Phase 1개.
+
+## 5. 향후 구현 결정 사항 (TBD)
 
 아래 항목은 구현을 진행하며 결정되는 대로 이 문서에 추가한다.
 

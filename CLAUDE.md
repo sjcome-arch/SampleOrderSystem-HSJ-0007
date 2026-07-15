@@ -8,10 +8,11 @@
 시료(Sample) 생산 및 주문 관리를 위한 **콘솔 기반** 애플리케이션.
 
 전체 요구사항은 [REQUIREMENT.md](./REQUIREMENT.md)를, 구현 방식(자료구조/알고리즘 등 상세 설계)은
-[design.md](./docs/DESIGN/design.md)를 참조한다. 원본 과제 PDF: `[CRA_AI] Day3_개인과제_반도체시료관리.pdf`.
+[design.md](./docs/DESIGN/design.md)를, AI 작업물 검증 절차는 [vierify.md](./docs/VIERIFY/vierify.md)를
+참조한다. 원본 과제 PDF: `[CRA_AI] Day3_개인과제_반도체시료관리.pdf`.
 
 - 요구사항(무엇을 만들 것인가)이 바뀌면 `REQUIREMENT.md`를, 구현 결정(어떻게 만들 것인가)이 바뀌면
-  `docs/DESIGN/design.md`를 업데이트한다.
+  `docs/DESIGN/design.md`를, 검증 절차가 바뀌면 `docs/VIERIFY/vierify.md`를 업데이트한다.
 
 ## 기술 스택 및 빌드
 
