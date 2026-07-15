@@ -1,7 +1,12 @@
 #pragma once
 
-// 상태별 주문 현황, 시료별 재고 현황 출력 (REQUIREMENT.md 5.5). 실제 화면은 Phase 7에서 구현한다.
+#include <vector>
+
+#include "Controller/monitoring_types.h"
+
+// 상태별 주문 현황, 시료별 재고 현황 출력 (REQUIREMENT.md 5.5).
 class MonitoringView {
 public:
-    void showPlaceholder() const;
+    void showOrderStatusSummary(const OrderStatusSummary& summary) const;
+    void showStockStatus(const std::vector<StockStatusRow>& rows) const;
 };

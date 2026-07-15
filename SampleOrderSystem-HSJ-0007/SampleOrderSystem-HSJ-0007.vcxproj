@@ -198,6 +198,7 @@
     <ClInclude Include="Controller\order_controller.h" />
     <ClInclude Include="Controller\order_types.h" />
     <ClInclude Include="Controller\monitoring_controller.h" />
+    <ClInclude Include="Controller\monitoring_types.h" />
     <ClInclude Include="Controller\production_line_controller.h" />
     <ClInclude Include="Controller\release_controller.h" />
     <ClInclude Include="Controller\release_types.h" />
