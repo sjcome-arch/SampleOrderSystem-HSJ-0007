@@ -204,6 +204,7 @@
     <ClInclude Include="Controller\release_controller.h" />
     <ClInclude Include="Controller\release_types.h" />
     <ClInclude Include="Controller\dummy_data_generator_controller.h" />
+    <ClInclude Include="Controller\dummy_data_generator_types.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

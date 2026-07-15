@@ -55,8 +55,8 @@ int main() {
     MonitoringController monitoringController(productSpecRepository, orderRepository, monitoringView);
     ProductionLineController productionLineController(productionLine, productSpecRepository, productionLineView);
     ReleaseController releaseController(orderRepository, productSpecRepository, releaseView);
-    DummyDataGeneratorController dummyDataGeneratorController(productSpecRepository, orderRepository,
-                                                                dummyDataGeneratorView);
+    DummyDataGeneratorController dummyDataGeneratorController(productSpecRepository, orderRepository, orderController,
+                                                                releaseController, dummyDataGeneratorView);
 
     MainMenuController mainMenuController(mainMenuView, productSpecRepository, orderRepository, productionLine,
                                            productSpecController, orderController, monitoringController,
