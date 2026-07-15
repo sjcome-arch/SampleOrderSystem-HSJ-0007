@@ -16,6 +16,11 @@
 ## 2. 구현 범위
 
 - `WaitingApprovalQueue`에서 FIFO 순서로 주문을 조회/처리한다 ([design_phase_3.md](./design_phase_3.md) 참조).
+- **재고 파악 출력**(REQUIREMENT.md 5.4): 시료명, `stock`(물리적 재고), `availableStock`(가용
+  재고), 주문 수량, 충분/부족 여부, 부족 시 부족분(`shortageQuantity`)을 함께 출력한다.
+  `stock`만 보여주면 "재고는 있는데 왜 부족하다는 건지" 헷갈릴 수 있어(Phase 7 모니터링과 동일한
+  이유로) 두 값을 모두 보여주기로 한다(요구사항 문구를 넘어선 구현 결정,
+  [design_phase_7.md - 2](./design_phase_7.md#2-구현-범위) 참조).
 - 승인 처리 분기는 **`ProductSpec.stock`(물리적 재고)이 아니라 `ProductSpec.availableStock`(가용
   재고)을 기준으로 판단한다** (두 필드의 구분은 [design_phase_2.md - 2.1](./design_phase_2.md#21-productspec-모델-modelproduct_spech--cpp) 참조):
   - 재고 파악 출력 → `availableStock >= 주문 수량`이면 충분 → `CONFIRMED` 전환,
@@ -86,6 +91,7 @@
   확인한다(생산 큐 처리 시점까지 계산이 미뤄지지 않는지).
 - 2.2 예시 시나리오를 그대로 재현했을 때 각 단계의 `stock`/`availableStock` 값이 표와 일치하는지
   확인한다.
+- 재고 파악 출력 화면에 `stock`과 `availableStock`이 둘 다 표시되는지 확인한다.
 
 ## 4. 리뷰 포인트 (Review)
 

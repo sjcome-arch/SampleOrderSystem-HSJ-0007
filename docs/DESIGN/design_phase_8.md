@@ -1,7 +1,10 @@
 # design_phase_8.md - Phase 8: 데이터 모니터링 Tool / Dummy 데이터 생성 Tool 이식
 
 > [design.md](./design.md)의 Phase 목록 중 8번째 문서(PoC 이식 Phase).
-> 선행 Phase: [design_phase_1.md](./design_phase_1.md) (Repository/영속성 계층이 먼저 있어야 재사용 가능)
+> 선행 Phase: [design_phase_1.md](./design_phase_1.md) (Repository/영속성 계층이 먼저 있어야 재사용 가능).
+> 데이터 모니터링 Tool 항목은 [design_phase_4.md](./design_phase_4.md)(접수된 주문 목록),
+> [design_phase_5.md](./design_phase_5.md)(대기 주문 확인), [design_phase_7.md](./design_phase_7.md)
+> (모니터링)의 기존 메뉴를 재사용하는 것으로 대체하므로 이 세 Phase도 선행되어야 한다.
 
 - 대상 요구사항: [REQUIREMENT.md 7. 미션 및 제출 관련](../../REQUIREMENT.md#7-미션-및-제출-관련-참고)
   (미션1 PoC "데이터 모니터링 Tool", "Dummy 데이터 생성 Tool" 항목)
@@ -9,20 +12,26 @@
 ## 1. 데이터 모니터링 Tool
 
 - 참조 PoC: [DataMonitor-HSJ-0007](https://github.com/sjcome-arch/DataMonitor-HSJ-0007)
-- 별도 콘솔 프로그램이 아니라, 메인 메뉴에 숨김 관리자 메뉴(예: `[9] 데이터 모니터링`)로 추가하거나,
-  같은 Repository 계층을 재사용하는 별도의 작은 실행 파일(`tools/DataMonitor`)로 구성한다.
-  둘 중 하나를 택하되, **Repository 계층을 그대로 재사용**하는 것이 핵심 조건이다.
-- 기능: `data/product_specs.json`, `data/orders.json`을 즉시 다시 읽어(reload) 아래를 콘솔에 표시한다.
-  - 전체 시료 목록(재고 포함), 전체 주문 목록(상태 포함), 상태별 주문 건수, 생산 큐/접수 큐 스냅샷
-- 이 도구는 데이터를 변경하지 않는 **읽기 전용**이어야 하며, 실행 중인 메인 애플리케이션과 동시에
-  띄워도 파일을 다시 읽어들이는 방식으로 최신 상태를 반영한다(PoC의 `reload()` 패턴 재사용).
-- **생산 큐/접수 큐 스냅샷 재구성**: 이 도구는 메인 애플리케이션의 `WaitingApprovalQueue`/
-  `ProductionLine` 메모리 객체에 접근할 수 없으므로, FIFO 순서를 파일 데이터만으로 재구성해야
-  한다. `OrderRepository::findByStatus`로 `RESERVED`(접수 큐)/`PRODUCING`(생산 큐) 주문을 조회한
-  뒤, **주문번호(`ORD-NNNNNN`) 오름차순으로 정렬**하면 실제 큐 순서와 일치한다 — 주문번호가
-  생성 순서대로 순차 채번되고([design.md - 6.1 주문번호 채번 규칙](./design.md#61-주문번호order-number-채번-규칙)
-  참조), 승인 처리(Phase 4)가 `WaitingApprovalQueue`에서 항상 FIFO로만 진행되어 두 큐 모두
-  임의 순서로 뒤섞이지 않기 때문이다.
+- **별도 실행 파일이나 숨김 메뉴를 새로 만들지 않는다.** 이 PoC 요구사항("저장된 데이터 상태를
+  콘솔에서 실시간 조회")은 메인 애플리케이션에 이미 있는 메뉴들을 **재사용**하는 것만으로 충족한다
+  ([design.md - 6.3](./design.md#63-데이터-모니터링-tool-구현-방식) 참조).
+- 요구 항목과 이를 충족하는 기존 메뉴의 대응:
+
+  | 필요한 정보 | 충족하는 기존 메뉴 |
+  |---|---|
+  | 전체 시료 목록(재고 포함) | 시료 관리 → 시료 조회 (Phase 2) |
+  | 시료별 재고 현황(여유/부족/고갈) | 모니터링 (Phase 7) |
+  | 상태별 주문 건수 | 모니터링 (Phase 7) |
+  | 접수 큐(대기 중인 `RESERVED` 주문) 스냅샷 | 주문 승인/거절 → 접수된 주문 목록 (Phase 4) |
+  | 생산 큐(대기 중인 `PRODUCING` 주문) 스냅샷 | 생산 라인 → 대기 주문 확인 (Phase 5) |
+
+- 이 메뉴들은 이미 **읽기 전용**(모니터링/조회 계열)이거나, 데이터를 바꾸지 않는 조회 동작만
+  수행하므로 별도의 "읽기 전용 보장" 장치가 추가로 필요 없다.
+- 별도 프로세스가 아니라 메인 애플리케이션 안의 기존 메뉴이므로, Phase 5의 "대기 주문 확인"과
+  Phase 4의 "접수된 주문 목록"은 `WaitingApprovalQueue`/`ProductionLine`의 실제 메모리 큐를
+  `snapshot()`으로 직접 보여준다 — 파일을 다시 읽어(`reload()`) 주문번호로 큐 순서를 재구성할
+  필요가 없다(별도 프로세스일 때만 필요한 재구성 기법은 [design_phase_1.md - 3.1](./design_phase_1.md#31-메모리-큐와-파일-동기화-원칙)의
+  "시작 시 재구성" 원칙으로 이미 별도 목적에 쓰이고 있다).
 
 ## 2. Dummy 데이터 생성 Tool
 
@@ -58,11 +67,15 @@
 
 - Dummy 데이터 생성 Tool 실행 후 생성된 항목이 `data/product_specs.json`/`data/orders.json`에 실제로
   저장되는지 확인한다.
-- 데이터 모니터링 Tool을 Dummy 데이터 생성 직후 실행(또는 새로고침)해 방금 생성된 데이터가
-  즉시 반영되는지 확인한다.
+- Dummy 데이터 생성 직후, 별도 새로고침 없이 시료 조회/모니터링/접수된 주문 목록/대기 주문 확인
+  메뉴에 방금 생성된 데이터가 즉시 반영되는지 확인한다(같은 프로세스·같은 Repository 인스턴스를
+  공유하므로 `reload()` 없이도 바로 보여야 한다).
 - 빈 데이터 상태에서 같은 개수(N/M)로 두 번 연속 생성했을 때(중간에 각각 초기화), 생성된
   시료명/평균생산시간/수율/초기재고/고객명/수량이 완전히 동일한지 확인한다(고정 시드 검증).
 
 ## 4. 리뷰 포인트 (Review)
 
-- 두 도구가 본 프로젝트의 Repository를 그대로 재사용하고 있는지(별도 JSON 로직을 새로 만들지 않았는지).
+- Dummy 데이터 생성 Tool이 본 프로젝트의 Repository를 그대로 재사용하고 있는지(별도 JSON 로직을
+  새로 만들지 않았는지).
+- 데이터 모니터링 Tool 요구사항을 충족한다며 별도 코드(새 Controller/View, 새 실행 파일 등)를
+  중복 작성하지 않았는지 — 반드시 1절의 기존 메뉴 재사용만으로 충족해야 한다.

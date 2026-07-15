@@ -49,9 +49,9 @@
   ([design_phase_1.md - 3.1](./design_phase_1.md#31-메모리-큐와-파일-동기화-원칙))에 따라 상태 변경마다
   파일에 즉시 반영되므로, 같은 프로세스 안에서 Repository의 메모리 상태는 항상 파일과 일치하는
   최신 상태다. 따라서 조회 전에 `reload()`를 호출할 필요가 없다.
-- 반면 [design_phase_8.md](./design_phase_8.md)의 데이터 모니터링 Tool은 **별도 프로세스**라서
-  메인 프로세스의 Repository 인스턴스를 공유할 수 없고, 그래서 그쪽만 `reload()`로 파일을 다시
-  읽어야 한다 — Phase 7과 Phase 8은 이 점에서 다르다.
+- [design_phase_8.md](./design_phase_8.md)의 "데이터 모니터링 Tool" PoC 요구사항은 별도 프로세스를
+  만들지 않고 바로 이 메뉴(및 Phase 4/5의 조회 메뉴)를 재사용해서 충족한다 — 그래서 `reload()`
+  같은 별도 장치가 필요 없다.
 
 ## 3. 검증 방법 (Verify)
 

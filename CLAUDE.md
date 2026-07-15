@@ -67,6 +67,10 @@ msbuild SampleOrderSystem-HSJ-0007.slnx /p:Configuration=Debug /p:Platform=x64
 - 이 항목들은 코드 리뷰/평가 기준이므로, 구현 시 위 4가지가 모두 실제로 동작하는지 확인한다.
 - 각 PoC Repository는 이미 검증된 구현체이므로, 본 프로젝트(SampleOrderSystem)의 MVC 구조/영속성/모니터링/Dummy
   데이터 생성 기능을 개발할 때는 새로 설계하지 말고 위 PoC Repository의 구조와 코드를 참조하여 이식·확장한다.
+  - **예외**: "데이터 모니터링 Tool"은 `DataMonitor-HSJ-0007`처럼 별도 실행 파일/숨김 메뉴로
+    이식하지 않는다. 대신 이 프로젝트에 이미 있는 조회 메뉴들(시료 조회/모니터링/접수된 주문
+    목록/대기 주문 확인)을 재사용해 "저장된 데이터를 콘솔에서 실시간 조회"라는 요구사항을
+    충족한다 (근거는 [design.md - 6.3](./docs/DESIGN/design.md#63-데이터-모니터링-tool-구현-방식) 참조).
 - MVC 구조 세부 지침은 위 "아키텍처 지침" 절을 따른다.
 - "데이터 영속성 처리"와 "Dummy 데이터 생성 Tool"은 동일한 저장소(Repository) 계층을 공유해야 하며,
   Dummy 데이터 생성 도구가 별도의 임시 저장소를 사용하지 않도록 주의한다.
