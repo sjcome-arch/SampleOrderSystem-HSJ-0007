@@ -5,19 +5,63 @@
 
 - 대상 요구사항: [REQUIREMENT.md 5.2 시료 관리](../../REQUIREMENT.md#52-시료-관리)
 
-## 1. 구현 범위
+## 1. 구현 목표 (Why)
 
-- `Sample` 모델: 시료 ID, 시료명, 평균 생산시간, 수율, 재고(현재 수량)
-- `SampleController` + `SampleRepository`를 이용한 등록/조회/검색/뒤로가기 메뉴 구현
-  (Repository 인터페이스는 [design_phase_1.md](./design_phase_1.md) 참조)
-- 시료 검색은 시료명 부분 일치(대소문자 무시) 기준으로 `findByName`을 구현한다.
+- 시료(ProductSpec)는 이 시스템의 가장 기본 단위이며, 등록된 시료만 이후 주문(Phase 3)의 대상이
+  될 수 있다. 따라서 Phase 2는 주문·생산·출고 등 뒤따르는 모든 Phase가 참조할 **시료 마스터
+  데이터**를 등록·조회·검색할 수 있게 만드는 것을 목표로 한다.
+- 또한 Phase 2는 [design_phase_1.md](./design_phase_1.md)에서 설계한 JSON 영속성 계층
+  (`ProductSpecRepository`)이 실제 데이터로 동작하는 첫 Phase이다. 즉 "등록한 시료가 프로그램을
+  껐다 켜도 그대로 남아있는지"를 이 단계에서 처음으로 검증하게 된다.
 
-## 2. 검증 방법 (Verify)
+## 2. 구현 범위
 
-- 시료 등록 후 `data/samples.json`에 반영되는지 확인한다.
+### 2.1 `ProductSpec` 모델 (`Model/product_spec.h` / `.cpp`)
+
+```cpp
+class ProductSpec {
+public:
+    std::string productSpecId;  // 시료 ID (채번 규칙은 design.md 5. TBD 참조)
+    std::string name;           // 시료명
+    double avgProductionTime;   // 평균 생산시간(분), 양수
+    double yield;               // 수율, 0 초과 ~ 1 이하
+    int stock;                  // 현재 재고 수량, 0 이상
+};
+```
+
+### 2.2 `ProductSpecController` 메뉴 흐름 (`Controller/product_spec_controller.h` / `.cpp`)
+
+- **등록**: 시료ID/시료명/평균생산시간/수율/초기재고 입력 → 입력값 검증(2.3 참조) → 확인(Y/N)
+  → Y 선택 시 `ProductSpecRepository::add` 호출 → 등록 결과 출력. N 선택 시 등록 취소, 메뉴로 복귀.
+- **조회**: `ProductSpecRepository::findAll` 결과를 표 형태(ID/시료명/평균생산시간/수율/재고)로 출력.
+- **검색**: 시료명 키워드 입력 → `ProductSpecRepository::findByName(keyword)` 호출 → 결과 출력
+  (없으면 "검색 결과 없음" 안내, REQUIREMENT.md 5.0 공통 사항).
+- **뒤로가기**: 상위(메인) 메뉴로 복귀.
+
+### 2.3 입력 검증 규칙
+
+- 수율(`yield`)은 `0 < yield <= 1` 범위를 벗어나면 재입력을 요청한다.
+- 평균 생산시간(`avgProductionTime`)은 양수가 아니면 재입력을 요청한다.
+- 초기 재고(`stock`)는 음수가 아니면 통과(0 허용).
+- 시료ID가 이미 등록된 값이면 등록을 거부하고 재입력을 요청한다(`findById`로 중복 확인).
+
+### 2.4 검색 구현
+
+- `ProductSpecRepository::findByName(const std::string& keyword) const`은 시료명 부분 일치
+  (대소문자 무시)로 매칭되는 항목을 모두 반환한다 (Repository 인터페이스는
+  [design_phase_1.md](./design_phase_1.md) 참조).
+  - REQUIREMENT.md 5.2는 "시료명 등 속성으로 검색"이라고만 명시하며, 부분 일치/대소문자 무시
+    여부는 규정하지 않는다. 이 두 가지는 요구사항이 아니라 본 문서에서 정한 구현 결정이다.
+
+## 3. 검증 방법 (Verify)
+
+- 시료 등록 후 `data/product_specs.json`에 반영되는지 확인한다.
 - 등록되지 않은 시료 ID로 검색 시 빈 목록/오류 안내가 출력되는지 확인한다(REQUIREMENT.md 5.0 공통 사항).
+- 시료를 등록한 뒤 프로그램을 종료하고 재실행했을 때, `data/product_specs.json` 파일이 삭제되지
+  않고 그대로 남아 있으며 등록했던 시료가 조회/검색 메뉴에 동일하게 나타나는지 확인한다
+  (Phase 1에서 설계한 JSON 영속성이 실제로 재실행 간 데이터를 유지하는지 검증).
 
-## 3. 리뷰 포인트 (Review)
+## 4. 리뷰 포인트 (Review)
 
 - 시료 등록 시 입력 검증(수율 0~1 범위, 평균 생산시간 양수 등)이 있는지.
 - View 계층이 Repository를 직접 호출하지 않고 Controller를 거치는지.
