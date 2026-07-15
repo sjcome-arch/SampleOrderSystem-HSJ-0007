@@ -94,6 +94,13 @@ msbuild SampleOrderSystem-HSJ-0007.slnx /p:Configuration=Debug /p:Platform=x64
   - `[chore]`: 빌드 시스템 등 코드 외적인 수정
 - **예시**: `[feature] 사용자 인증 함수 추가 및 유효성 검사 unit test 구현`
 
+## 커밋 전 리뷰 절차
+
+- 실제로 `git commit`을 실행하기 전에, 반드시 변경 내용 요약과 커밋 메시지(Prefix 포함) 초안을
+  사용자에게 먼저 제시하고 확인을 받는다.
+- 사용자가 승인("커밋해", "좋아" 등)한 뒤에만 커밋을 실행한다. 별도 지시가 없는 한 커밋을 임의로
+  건너뛰거나 리뷰 없이 진행하지 않는다.
+
 ## 참고
 
 - 과제 진행 시 사용 모델은 Sonnet (Effort: Medium)으로 제한됨 (평가 조건).
