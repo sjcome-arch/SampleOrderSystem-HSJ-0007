@@ -115,12 +115,17 @@
     <ClCompile Include="$(SolutionDir)SampleOrderSystem-HSJ-0007\Repository\json_value.cpp" />
     <ClCompile Include="$(SolutionDir)SampleOrderSystem-HSJ-0007\Repository\product_spec_repository.cpp" />
     <ClCompile Include="$(SolutionDir)SampleOrderSystem-HSJ-0007\Repository\order_repository.cpp" />
+    <ClCompile Include="$(SolutionDir)SampleOrderSystem-HSJ-0007\Controller\product_spec_controller.cpp" />
+    <ClCompile Include="$(SolutionDir)SampleOrderSystem-HSJ-0007\View\product_spec_view.cpp" />
   </ItemGroup>
 
   <ItemGroup>
     <!-- Phase 1: Repository 테스트 -->
     <ClCompile Include="Repository\product_spec_repository_test.cpp" />
     <ClCompile Include="Repository\order_repository_test.cpp" />
+    <!-- Phase 2: 시료 관리 테스트 -->
+    <ClCompile Include="Model\product_spec_test.cpp" />
+    <ClCompile Include="Controller\product_spec_controller_test.cpp" />
   </ItemGroup>
 
   <ItemGroup>

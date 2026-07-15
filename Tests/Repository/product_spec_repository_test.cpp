@@ -91,6 +91,38 @@ TEST(ProductSpecRepositoryTest, ProductSpecRepositoryRemoveDeletesRecord) {
     resetFile(path);
 }
 
+TEST(ProductSpecRepositoryTest, ProductSpecRepositoryFindByNamePartialMatchCaseInsensitive) {
+    auto path = tempFilePath("find_by_name");
+    resetFile(path);
+
+    ProductSpecRepository repo(path.string());
+    ProductSpec spec = makeProductSpec("S-301");
+    spec.name = "SampleA";
+    repo.add(spec);
+
+    EXPECT_EQ(repo.findByName("samplea").size(), 1u);
+    EXPECT_EQ(repo.findByName("ample").size(), 1u);
+    EXPECT_TRUE(repo.findByName("nomatch").empty());
+
+    resetFile(path);
+}
+
+TEST(ProductSpecRepositoryTest, ProductSpecRepositoryPersistenceSurvivesRestart) {
+    auto path = tempFilePath("persistence_restart");
+    resetFile(path);
+
+    {
+        ProductSpecRepository repo(path.string());
+        repo.add(makeProductSpec("S-302"));
+    }
+
+    ProductSpecRepository restarted(path.string());
+    EXPECT_EQ(restarted.findAll().size(), 1u);
+    EXPECT_TRUE(restarted.findById("S-302").has_value());
+
+    resetFile(path);
+}
+
 TEST(ProductSpecRepositoryTest, ProductSpecRepositoryReloadReflectsExternalFileChange) {
     auto path = tempFilePath("reload_reflects");
     resetFile(path);
