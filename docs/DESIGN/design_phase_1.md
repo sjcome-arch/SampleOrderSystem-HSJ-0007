@@ -34,14 +34,16 @@ SampleOrderSystem-HSJ-0007/           # vcxproj 루트
 │   ├── order_view.h / .cpp           # class OrderView: 시료 주문 입력·확인 및 주문 승인/거절 화면 출력 (REQUIREMENT.md 5.3, 5.4)
 │   ├── monitoring_view.h / .cpp      # class MonitoringView: 상태별 주문 현황, 시료별 재고 현황 출력 (REQUIREMENT.md 5.5)
 │   ├── production_line_view.h / .cpp # class ProductionLineView: 생산 라인 상태(RUNNING/WAITING), 대기 큐 목록 출력 (REQUIREMENT.md 5.6)
-│   └── release_view.h / .cpp         # class ReleaseView: 출고 가능 목록/출고 처리 결과 출력 (REQUIREMENT.md 5.7)
+│   ├── release_view.h / .cpp         # class ReleaseView: 출고 가능 목록/출고 처리 결과 출력 (REQUIREMENT.md 5.7)
+│   └── dummy_data_generator_view.h / .cpp # class DummyDataGeneratorView: 생성 개수 입력/결과 요약 출력 (design_phase_8.md 참조)
 ├── Controller/       # 사용자 입력 처리, Model 조작, View 갱신 지시
 │   ├── main_menu_controller.h / .cpp # class MainMenuController: 메뉴 표시→입력→하위 Controller 디스패치 (5.1)
 │   ├── product_spec_controller.h / .cpp   # class ProductSpecController
 │   ├── order_controller.h / .cpp          # class OrderController
 │   ├── monitoring_controller.h / .cpp     # class MonitoringController
 │   ├── production_line_controller.h / .cpp # class ProductionLineController
-│   └── release_controller.h / .cpp        # class ReleaseController
+│   ├── release_controller.h / .cpp        # class ReleaseController
+│   └── dummy_data_generator_controller.h / .cpp # class DummyDataGeneratorController: Dummy 데이터 생성 메뉴 (design_phase_8.md 참조)
 └── main.cpp          # 진입점: Repository/하위 Controller 생성 → MainMenuController.run() 호출
 ```
 
@@ -64,8 +66,8 @@ SampleOrderSystem-HSJ-0007/           # vcxproj 루트
 |---|---|---|
 | Model | `product_spec.h` / `.cpp`<br>`order.h` / `.cpp`<br>`order_status.h`<br>`waiting_approval_queue.h` / `.cpp`<br>`production_line.h` / `.cpp` | `ProductSpec`<br>`Order`<br>`OrderStatus` (enum class)<br>`WaitingApprovalQueue`<br>`ProductionLine` |
 | Repository | `product_spec_repository.h` / `.cpp`<br>`order_repository.h` / `.cpp` | `ProductSpecRepository`<br>`OrderRepository` |
-| View | `main_menu_view.h` / `.cpp`<br>`product_spec_view.h` / `.cpp`<br>`order_view.h` / `.cpp`<br>`monitoring_view.h` / `.cpp`<br>`production_line_view.h` / `.cpp`<br>`release_view.h` / `.cpp` | `MainMenuView`<br>`ProductSpecView`<br>`OrderView`<br>`MonitoringView`<br>`ProductionLineView`<br>`ReleaseView` |
-| Controller | `main_menu_controller.h` / `.cpp`<br>`product_spec_controller.h` / `.cpp`<br>`order_controller.h` / `.cpp`<br>`monitoring_controller.h` / `.cpp`<br>`production_line_controller.h` / `.cpp`<br>`release_controller.h` / `.cpp` | `MainMenuController`<br>`ProductSpecController`<br>`OrderController`<br>`MonitoringController`<br>`ProductionLineController`<br>`ReleaseController` |
+| View | `main_menu_view.h` / `.cpp`<br>`product_spec_view.h` / `.cpp`<br>`order_view.h` / `.cpp`<br>`monitoring_view.h` / `.cpp`<br>`production_line_view.h` / `.cpp`<br>`release_view.h` / `.cpp`<br>`dummy_data_generator_view.h` / `.cpp` | `MainMenuView`<br>`ProductSpecView`<br>`OrderView`<br>`MonitoringView`<br>`ProductionLineView`<br>`ReleaseView`<br>`DummyDataGeneratorView` |
+| Controller | `main_menu_controller.h` / `.cpp`<br>`product_spec_controller.h` / `.cpp`<br>`order_controller.h` / `.cpp`<br>`monitoring_controller.h` / `.cpp`<br>`production_line_controller.h` / `.cpp`<br>`release_controller.h` / `.cpp`<br>`dummy_data_generator_controller.h` / `.cpp` | `MainMenuController`<br>`ProductSpecController`<br>`OrderController`<br>`MonitoringController`<br>`ProductionLineController`<br>`ReleaseController`<br>`DummyDataGeneratorController` |
 | (진입점) | `main.cpp` | - |
 
 - Model 계층에 `main_menu` 관련 파일이 없는 이유는 아래 "기능/엔티티별 4계층 대응표"의
@@ -86,10 +88,12 @@ SampleOrderSystem-HSJ-0007/           # vcxproj 루트
 | 모니터링 (5.5) | - (엔티티 없음, 조회 전용) | `ProductSpecRepository`, `OrderRepository`<br>(`product_spec_repository.h` / `.cpp`, `order_repository.h` / `.cpp`) | `MonitoringView`<br>(`monitoring_view.h` / `.cpp`) | `MonitoringController`<br>(`monitoring_controller.h` / `.cpp`) |
 | 생산 라인 (5.6) | `ProductionLine`<br>(`production_line.h` / `.cpp`) | - (Model이 메모리에서 직접 관리, `ProductSpecRepository`로 재고만 반영) | `ProductionLineView`<br>(`production_line_view.h` / `.cpp`) | `ProductionLineController`<br>(`production_line_controller.h` / `.cpp`) |
 | 출고 처리 (5.7) | - (엔티티 없음, `Order` 상태만 변경) | `OrderRepository`<br>(`order_repository.h` / `.cpp`) | `ReleaseView`<br>(`release_view.h` / `.cpp`) | `ReleaseController`<br>(`release_controller.h` / `.cpp`) |
+| Dummy 데이터 생성 (PoC, design.md 6.2) | - (엔티티 없음, 기존 엔티티를 add로 생성) | `ProductSpecRepository`, `OrderRepository`<br>(`product_spec_repository.h` / `.cpp`, `order_repository.h` / `.cpp`) | `DummyDataGeneratorView`<br>(`dummy_data_generator_view.h` / `.cpp`) | `DummyDataGeneratorController`<br>(`dummy_data_generator_controller.h` / `.cpp`) |
 
-- "메인 메뉴"와 "출고 처리"/"모니터링"처럼 Model 칸이 비어 있는 행은 정상이다. 해당 기능이
-  하나의 엔티티를 소유하지 않고, 기존 엔티티(Order 등)를 조회·조합하기만 하기 때문이다.
-  이런 경우까지 억지로 빈 Model 클래스를 만들지 않는다.
+- "메인 메뉴"와 "출고 처리"/"모니터링"/"Dummy 데이터 생성"처럼 Model 칸이 비어 있는 행은 정상이다.
+  해당 기능이 하나의 엔티티를 소유하지 않고, 기존 엔티티(`ProductSpec`/`Order`)를 조회·조합하거나
+  기존 Repository의 `add()`로 생성하기만 하기 때문이다. 이런 경우까지 억지로 빈 Model 클래스를
+  만들지 않는다.
 
 ## 3. 데이터 영속성 처리 (파일/JSON/DB 중 선택 + CRUD)
 
@@ -171,7 +175,7 @@ public:
 };
 ```
 
-- `stockAtApproval`~`totalProductionTime`은 재고가 충분해 즉시 `CONFIRMED`로 전환된 주문에는
+- `availableStockAtApproval`~`totalProductionTime`은 재고가 충분해 즉시 `CONFIRMED`로 전환된 주문에는
   채워지지 않는다(값 없음/기본값).
 - `productionStartedAt`은 큐의 맨 앞(front) 항목에만 값이 있고, 아직 대기 중인 항목은 비어 있다
   (`std::nullopt`). 생산 완료(`completeCurrent()`) 후 다음 항목이 front가 될 때 그 시점의 현재
