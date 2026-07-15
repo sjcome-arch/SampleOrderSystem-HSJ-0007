@@ -118,14 +118,38 @@ SampleOrderSystem-HSJ-0007/           # vcxproj 루트
 - Model 계층(`WaitingApprovalQueue`, `ProductionLine`)은 Repository를 통해서만 데이터를 읽고 쓰며,
   파일 포맷을 직접 알지 못하도록 한다(Repository가 직렬화/역직렬화를 캡슐화).
 
+### 3.1 메모리 큐와 파일 동기화 원칙
+
+`WaitingApprovalQueue`(Phase 3)와 `ProductionLine`(Phase 5)은 내부에 `std::queue<Order>`를 들고
+빠르게 front/pop 처리를 하면서도, 파일(Repository)과 항상 재구성 가능한 관계를 유지해야 한다.
+이를 위해 아래 두 원칙을 따른다.
+
+- **저장 순서(쓰기 시 파일 우선)**: 큐 상태를 바꾸는 모든 연산(주문 접수, 승인 시 생산 큐 등록,
+  생산 완료 등)은 **`OrderRepository`(및 필요 시 `ProductSpecRepository`)에 먼저 저장해 성공을
+  확인한 뒤에만** 메모리 큐(`enqueue`/`dequeue` 등)를 갱신한다. 저장 도중 프로그램이 종료되어도
+  메모리는 휘발되므로, "파일에 반영된 것 = 실제로 일어난 일"이라는 관계가 항상 유지된다.
+- **시작 시 재구성(rebuild on startup)**: `main.cpp`에서 `WaitingApprovalQueue`/`ProductionLine`을
+  생성할 때는 빈 큐로 시작하지 않고, `OrderRepository::findByStatus(RESERVED)` /
+  `findByStatus(PRODUCING)` 결과를 **주문번호(`ORD-NNNNNN`) 오름차순**으로 정렬해 그 순서대로
+  `enqueue`하여 채운다. 주문번호가 생성 순서대로 순차 채번되고([design.md - 6.1 주문번호
+  채번 규칙](./design.md#61-주문번호order-number-채번-규칙)), 큐가 "뒤에서만 push, 앞에서만 pop"하는
+  불변식을 지키기 때문에, 이 재구성 결과는 항상 실제 큐 상태와 동일하다.
+
+이 두 원칙 덕분에 런타임 중에는 메모리 큐로 빠르게 처리하면서도, 파일이 항상 유일한 진실
+소스(single source of truth) 역할을 하여 둘 사이의 싱크가 어긋나지 않는다.
+
 ## 4. 검증 방법 (Verify)
 
 - 빌드: `msbuild SampleOrderSystem-HSJ-0007.slnx /p:Configuration=Debug /p:Platform=x64`가 경고 없이 성공한다.
 - Repository 단위 테스트: add → findAll → update → remove 시나리오가 파일에 정확히 반영되는지 확인한다
   (자세한 절차는 [test.md](../TEST/test.md) 참조).
 - 콘솔 한글 출력이 깨지지 않는지 확인한다(`/utf-8` 컴파일 옵션 + `SetConsoleOutputCP(CP_UTF8)` 적용 여부).
+- 접수/생산 큐에 항목이 있는 상태에서 프로그램을 종료 후 재실행했을 때, 재구성된 큐의 순서가
+  종료 전과 동일한지 확인한다(3.1 시작 시 재구성 원칙 검증).
 
 ## 5. 리뷰 포인트 (Review)
 
 - Model/View/Controller/Repository 4계층의 의존 방향이 설계대로 지켜졌는지.
+- 큐 상태를 바꾸는 모든 지점에서 Repository 저장이 메모리 큐 갱신보다 먼저 일어나는지(3.1 저장
+  순서 원칙).
 - ProductSpec/Order 엔티티 필드가 REQUIREMENT.md 5.2/5.3과 일치하는지.

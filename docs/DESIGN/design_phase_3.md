@@ -44,10 +44,11 @@ private:
 
 - **입력**: 시료 ID, 고객명, 주문 수량 (REQUIREMENT.md 5.3 참조)
 - **입력 내용 확인**: 시료명/고객명/수량을 화면에 표시 → 확인(Y/N)
-  - Y: `Order` 생성(상태 `RESERVED`) → `WaitingApprovalQueue::enqueue` → 주문 완료 정보 출력
+  - Y: `Order` 생성(상태 `RESERVED`) → **`OrderRepository::add`로 먼저 저장** → 저장 성공 후
+    `WaitingApprovalQueue::enqueue` 호출 → 주문 완료 정보 출력
   - N: 주문 생성 취소, 시료 주문 메뉴로 복귀
-- 생성된 `Order`는 `OrderRepository::add`를 통해 영속화한다(큐는 메모리 상 처리 순서만 관리하고,
-  실제 데이터는 Repository가 소유).
+- 저장을 메모리 큐 반영보다 먼저 하는 이유와, 프로그램 시작 시 `WaitingApprovalQueue`를 파일에서
+  재구성하는 방법은 [design_phase_1.md - 3.1 메모리 큐와 파일 동기화 원칙](./design_phase_1.md#31-메모리-큐와-파일-동기화-원칙) 참조.
 
 ### 주의: 생산 큐(Production Queue)와의 구분
 
