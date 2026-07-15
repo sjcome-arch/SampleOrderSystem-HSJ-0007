@@ -47,10 +47,13 @@ void ProductionLineView::showCurrentProduction(const CurrentProductionInfo& info
         std::cout << "\n[생산 현황] WAITING - 현재 처리 중인 주문 없음" << std::endl;
         return;
     }
-    std::cout << "\n[생산 현황] RUNNING\n주문번호=" << info.order.orderId << ", 주문량=" << info.order.quantity
-               << ", 주문 시 재고=" << info.order.availableStockAtApproval
-               << ", 부족수량=" << info.order.shortageQuantity
-               << ", 실생산량=" << info.order.actualProductionQuantity << ", 수율=" << info.spec.yield
-               << ", 생산시간=" << info.order.totalProductionTime
-               << ", 완료예정=" << formatTime(info.expectedCompletion) << std::endl;
+    std::cout << "\n[생산 현황] RUNNING\n"
+               << "주문번호: " << info.order.orderId << "\n"
+               << "주문량: " << info.order.quantity << "\n"
+               << "주문 시 재고: " << info.order.availableStockAtApproval << "\n"
+               << "부족수량: " << info.order.shortageQuantity << "\n"
+               << "실생산량: " << info.order.actualProductionQuantity << "\n"
+               << "수율: " << info.spec.yield << "\n"
+               << "생산시간: " << info.order.totalProductionTime << "\n"
+               << "완료예정: " << formatTime(info.expectedCompletion) << std::endl;
 }
