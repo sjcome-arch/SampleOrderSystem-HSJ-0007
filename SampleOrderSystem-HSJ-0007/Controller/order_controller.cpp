@@ -1,5 +1,6 @@
 #include "Controller/order_controller.h"
 
+#include <chrono>
 #include <cmath>
 
 OrderController::OrderController(IOrderRepository& orderRepository, IProductSpecRepository& productSpecRepository,
@@ -73,7 +74,7 @@ ApproveNextResult OrderController::approveNext() {
 
         productSpecRepository_.update(spec);
         orderRepository_.update(order);
-        productionLine_.enqueue(order);
+        productionLine_.enqueue(order, std::chrono::system_clock::now());
     }
 
     return ApproveNextResult{false, order};

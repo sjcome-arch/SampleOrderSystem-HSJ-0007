@@ -38,7 +38,8 @@ int main() {
 
     // 시작 시 재구성 (design_phase_1.md 3.1)
     WaitingApprovalQueue waitingApprovalQueue(sortedByOrderId(orderRepository.findByStatus(OrderStatus::RESERVED)));
-    ProductionLine productionLine(sortedByOrderId(orderRepository.findByStatus(OrderStatus::PRODUCING)));
+    ProductionLine productionLine(sortedByOrderId(orderRepository.findByStatus(OrderStatus::PRODUCING)),
+                                   productSpecRepository, orderRepository);
 
     MainMenuView mainMenuView;
     ProductSpecView productSpecView;
@@ -52,7 +53,7 @@ int main() {
     OrderController orderController(orderRepository, productSpecRepository, waitingApprovalQueue, productionLine,
                                      orderView);
     MonitoringController monitoringController(productSpecRepository, orderRepository, monitoringView);
-    ProductionLineController productionLineController(productionLine, productionLineView);
+    ProductionLineController productionLineController(productionLine, productSpecRepository, productionLineView);
     ReleaseController releaseController(orderRepository, releaseView);
     DummyDataGeneratorController dummyDataGeneratorController(productSpecRepository, orderRepository,
                                                                 dummyDataGeneratorView);

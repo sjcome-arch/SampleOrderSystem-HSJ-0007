@@ -68,7 +68,7 @@ TEST(OrderControllerTest, OrderControllerReserveCreatesOrderWithReservedStatus) 
     specRepository.add(makeProductSpec("S-401"));
     OrderRepository orderRepository(orderPath.string());
     WaitingApprovalQueue queue({});
-    ProductionLine productionLine({});
+    ProductionLine productionLine({}, specRepository, orderRepository);
     OrderView view;
     OrderController controller(orderRepository, specRepository, queue, productionLine, view);
 
@@ -98,7 +98,7 @@ TEST(OrderControllerTest, OrderControllerReserveSavesBeforeEnqueue) {
     specRepository.add(makeProductSpec("S-402"));
     OrderRepository orderRepository(orderPath.string());
     WaitingApprovalQueue queue({});
-    ProductionLine productionLine({});
+    ProductionLine productionLine({}, specRepository, orderRepository);
     SaveOrderTrackingRepository trackingRepository(orderRepository, queue);
     OrderView view;
     OrderController controller(trackingRepository, specRepository, queue, productionLine, view);
@@ -125,7 +125,7 @@ TEST(OrderControllerTest, OrderControllerReserveCancelOnNoConfirm) {
     specRepository.add(makeProductSpec("S-403"));
     OrderRepository orderRepository(orderPath.string());
     WaitingApprovalQueue queue({});
-    ProductionLine productionLine({});
+    ProductionLine productionLine({}, specRepository, orderRepository);
     OrderView view;
     OrderController controller(orderRepository, specRepository, queue, productionLine, view);
 
@@ -151,7 +151,7 @@ TEST(OrderControllerTest, OrderControllerReserveRejectsUnknownProductSpec) {
     ProductSpecRepository specRepository(specPath.string());
     OrderRepository orderRepository(orderPath.string());
     WaitingApprovalQueue queue({});
-    ProductionLine productionLine({});
+    ProductionLine productionLine({}, specRepository, orderRepository);
     OrderView view;
     OrderController controller(orderRepository, specRepository, queue, productionLine, view);
 
@@ -177,7 +177,7 @@ TEST(OrderControllerTest, OrderControllerReserveRejectsNonPositiveQuantity) {
     specRepository.add(makeProductSpec("S-404"));
     OrderRepository orderRepository(orderPath.string());
     WaitingApprovalQueue queue({});
-    ProductionLine productionLine({});
+    ProductionLine productionLine({}, specRepository, orderRepository);
     OrderView view;
     OrderController controller(orderRepository, specRepository, queue, productionLine, view);
 
