@@ -16,3 +16,9 @@ bin/
 
 # Course material PDFs (not part of the project)
 *.pdf
+
+# NuGet restored packages (restored locally, not committed)
+packages/
+
+# JSON 영속성 데이터 파일 (런타임 생성)
+data/

@@ -4,4 +4,5 @@
     <Platform Name="x86" />
   </Configurations>
   <Project Path="SampleOrderSystem-HSJ-0007/SampleOrderSystem-HSJ-0007.vcxproj" />
+  <Project Path="Tests/Tests.vcxproj" />
 </Solution>
