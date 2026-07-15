@@ -21,6 +21,19 @@
 - 방법: `msbuild`로 Tests 프로젝트를 빌드한 뒤 테스트를 실행하고, 전부 PASS하는지 확인한다.
 - Phase 개발을 지시할 때는 "Phase1 개발해"가 아니라 **"Phase1 개발하고 Verify까지 수행해"**
   라고 지시한다.
+- 구체적인 테스트 케이스 목록(테스트 이름, Given/When/Then, 대상 파일)은 Phase별
+  `test_phase_N.md` 문서에 정리되어 있다. 구현 전에 해당 문서를 먼저 참조해 테스트를 작성한다.
+
+  | Phase | 문서 | 대상 |
+  |---|---|---|
+  | 1 | [test_phase_1.md](./test_phase_1.md) | Repository CRUD, 큐 재구성 |
+  | 2 | [test_phase_2.md](./test_phase_2.md) | 시료 관리 (등록/조회/검색) |
+  | 3 | [test_phase_3.md](./test_phase_3.md) | 시료 주문 + 주문 접수 큐 |
+  | 4 | [test_phase_4.md](./test_phase_4.md) | 주문 승인/거절 (stock/availableStock 분기) |
+  | 5 | [test_phase_5.md](./test_phase_5.md) | 생산 라인, 실 생산량/수율, tick 완료 판정 |
+  | 6 | [test_phase_6.md](./test_phase_6.md) | 출고 처리 (stock 차감) |
+  | 7 | [test_phase_7.md](./test_phase_7.md) | 모니터링 (여유/부족/고갈 판정) |
+  | 8 | [test_phase_8.md](./test_phase_8.md) | Dummy 데이터 생성 Tool, 데이터 모니터링 재사용 |
 
 ### 2.2 Compliance Verify (요구사항 충족 검증)
 
@@ -50,7 +63,20 @@
   정식 회귀 테스트(`Tests/`, git 포함)와 분리하여 스크래치 경로(예: `/tmp` 또는 임시 브랜치)
   에서만 실행하고, 실제로 발견된 결함에 대해서만 정식 테스트로 옮겨 담는다.
 
-## 4. 개발 지시 → Verify → Review 플로우
+## 4. 시간 의존 로직 테스트 원칙
+
+- 생산 라인의 완료 판정(`ProductionLine::tick`, `design_phase_5.md` 4.3 참조)처럼 "현재 시각"에
+  의존하는 로직은, 실제 시계(`std::chrono::system_clock::now()`)를 테스트 코드에서 직접 호출하지
+  않는다. 대신 해당 로직이 시각을 항상 **파라미터(`Time now`)로 전달받도록** 설계하고, 테스트는
+  임의로 만든 고정 `Time` 값을 그 파라미터에 넣어 검증한다.
+- 이렇게 하면 별도의 Mock/Fake Clock 클래스나 인터페이스 없이도, "30분 뒤" 같은 시나리오를
+  실제로 기다리지 않고 즉시 재현·검증할 수 있다.
+- 실제 앱(Debug/Release 공통)에서는 Controller가 `system_clock::now()`를 호출해 그 값을
+  넘겨주고, 테스트 코드만 고정 값을 넘긴다는 점에서 프로덕션 코드 경로는 완전히 동일하게
+  유지된다(별도 시간 주입 기능은 Release 앱에 두지 않는다).
+- 구체적인 시그니처와 테스트 예시는 [design_phase_5.md - 4.3 완료 판정 시점](../DESIGN/design_phase_5.md#43-완료-판정-시점-tick) 참조.
+
+## 5. 개발 지시 → Verify → Review 플로우
 
 ```
 PLAN (AI와 협업, docs/PLAN/phaseN.md)
@@ -65,7 +91,7 @@ Test Verify ──▶ Compliance Verify ──▶ Document Consistency Verify
 Human Review (사람 최종 검토 → 커밋 전 리뷰 절차 적용)
 ```
 
-## 5. Fail 발생 시 대응
+## 6. Fail 발생 시 대응
 
 Verify 단계에서 실패가 발견되면, 사람이 바로 "고쳐줘"라고 지시하지 않는다. 아래 순서를 따른다.
 
