@@ -117,6 +117,8 @@
     <ClCompile Include="$(SolutionDir)SampleOrderSystem-HSJ-0007\Repository\order_repository.cpp" />
     <ClCompile Include="$(SolutionDir)SampleOrderSystem-HSJ-0007\Controller\product_spec_controller.cpp" />
     <ClCompile Include="$(SolutionDir)SampleOrderSystem-HSJ-0007\View\product_spec_view.cpp" />
+    <ClCompile Include="$(SolutionDir)SampleOrderSystem-HSJ-0007\Controller\order_controller.cpp" />
+    <ClCompile Include="$(SolutionDir)SampleOrderSystem-HSJ-0007\View\order_view.cpp" />
   </ItemGroup>
 
   <ItemGroup>
@@ -126,6 +128,9 @@
     <!-- Phase 2: 시료 관리 테스트 -->
     <ClCompile Include="Model\product_spec_test.cpp" />
     <ClCompile Include="Controller\product_spec_controller_test.cpp" />
+    <!-- Phase 3: 시료 주문 및 주문 접수 큐 테스트 -->
+    <ClCompile Include="Model\waiting_approval_queue_test.cpp" />
+    <ClCompile Include="Controller\order_controller_test.cpp" />
   </ItemGroup>
 
   <ItemGroup>
