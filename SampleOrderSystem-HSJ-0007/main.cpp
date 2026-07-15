@@ -49,7 +49,8 @@ int main() {
     DummyDataGeneratorView dummyDataGeneratorView;
 
     ProductSpecController productSpecController(productSpecRepository, productSpecView);
-    OrderController orderController(orderRepository, productSpecRepository, waitingApprovalQueue, orderView);
+    OrderController orderController(orderRepository, productSpecRepository, waitingApprovalQueue, productionLine,
+                                     orderView);
     MonitoringController monitoringController(productSpecRepository, orderRepository, monitoringView);
     ProductionLineController productionLineController(productionLine, productionLineView);
     ReleaseController releaseController(orderRepository, releaseView);
