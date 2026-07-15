@@ -56,6 +56,12 @@
 - 본 Repository(SampleOrderSystem)는 미션2(프로젝트 개발) 산출물이지만, PDF 원문의 미션1 PoC 4개
   항목([CLAUDE.md - PoC 필수 구성 요소](../../CLAUDE.md#poc-필수-구성-요소) 참조)도 함께 충족해야
   하므로, 아래와 같이 하나의 구현 시나리오로 통합하여 진행한다.
+- 각 PoC 항목은 이미 별도 Repository에서 구현·검증되었으며, 아래 구조/코드는 해당 Repository를
+  참조하여 본 프로젝트에 이식·확장한 것이다.
+  - MVC 스켈레톤 코드: [ConsoleMVC-HSJ-0007](https://github.com/sjcome-arch/ConsoleMVC-HSJ-0007)
+  - 데이터 영속성 처리: [DataPersistence-HSJ-0007](https://github.com/sjcome-arch/DataPersistence-HSJ-0007)
+  - 데이터 모니터링 Tool: [DataMonitor-HSJ-0007](https://github.com/sjcome-arch/DataMonitor-HSJ-0007)
+  - Dummy 데이터 생성 Tool: [DummyDataGenerator-HSJ-0007](https://github.com/sjcome-arch/DummyDataGenerator-HSJ-0007)
 
 ### 3.1 디렉터리 구조 (MVC 스켈레톤 코드)
 

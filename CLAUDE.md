@@ -57,14 +57,16 @@ msbuild SampleOrderSystem-HSJ-0007.slnx /p:Configuration=Debug /p:Platform=x64
 
 본 프로젝트는 아래 4가지 PoC 항목을 충족해야 한다 (원본 과제의 [미션1] PoC 개발 항목 기준).
 
-| 항목 | 요구 내용 |
-|---|---|
-| MVC 스켈레톤 코드 | Model / Controller / View 패키지(디렉터리) 구조와 역할 분리를 완성한다. 각 계층은 서로의 책임을 침범하지 않는다. |
-| 데이터 영속성 처리 | 선택한 방식(파일, JSON, DB 등)으로 데이터를 저장·불러오는 구조를 구현한다. CRUD(생성/조회/수정/삭제)를 모두 포함한다. |
-| 데이터 모니터링 Tool | 현재 저장된 데이터 상태를 콘솔에서 실시간으로 조회할 수 있는 관리자 도구를 제공한다. |
-| Dummy 데이터 생성 Tool | 테스트를 위한 Dummy Data를 생성하는 도구를 제공한다. 생성된 Dummy Data는 연결된 DB(영속성 저장소)에 실제로 추가되어야 한다. |
+| 항목 | 요구 내용 | PoC Repository |
+|---|---|---|
+| MVC 스켈레톤 코드 | Model / Controller / View 패키지(디렉터리) 구조와 역할 분리를 완성한다. 각 계층은 서로의 책임을 침범하지 않는다. | [ConsoleMVC-HSJ-0007](https://github.com/sjcome-arch/ConsoleMVC-HSJ-0007) |
+| 데이터 영속성 처리 | 선택한 방식(파일, JSON, DB 등)으로 데이터를 저장·불러오는 구조를 구현한다. CRUD(생성/조회/수정/삭제)를 모두 포함한다. | [DataPersistence-HSJ-0007](https://github.com/sjcome-arch/DataPersistence-HSJ-0007) |
+| 데이터 모니터링 Tool | 현재 저장된 데이터 상태를 콘솔에서 실시간으로 조회할 수 있는 관리자 도구를 제공한다. | [DataMonitor-HSJ-0007](https://github.com/sjcome-arch/DataMonitor-HSJ-0007) |
+| Dummy 데이터 생성 Tool | 테스트를 위한 Dummy Data를 생성하는 도구를 제공한다. 생성된 Dummy Data는 연결된 DB(영속성 저장소)에 실제로 추가되어야 한다. | [DummyDataGenerator-HSJ-0007](https://github.com/sjcome-arch/DummyDataGenerator-HSJ-0007) |
 
 - 이 항목들은 코드 리뷰/평가 기준이므로, 구현 시 위 4가지가 모두 실제로 동작하는지 확인한다.
+- 각 PoC Repository는 이미 검증된 구현체이므로, 본 프로젝트(SampleOrderSystem)의 MVC 구조/영속성/모니터링/Dummy
+  데이터 생성 기능을 개발할 때는 새로 설계하지 말고 위 PoC Repository의 구조와 코드를 참조하여 이식·확장한다.
 - MVC 구조 세부 지침은 위 "아키텍처 지침" 절을 따른다.
 - "데이터 영속성 처리"와 "Dummy 데이터 생성 Tool"은 동일한 저장소(Repository) 계층을 공유해야 하며,
   Dummy 데이터 생성 도구가 별도의 임시 저장소를 사용하지 않도록 주의한다.
