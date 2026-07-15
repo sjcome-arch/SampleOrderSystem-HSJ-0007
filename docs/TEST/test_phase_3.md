@@ -12,13 +12,13 @@
 
 | # | 테스트 이름 | Given | When | Then |
 |---|---|---|---|---|
-| 1 | `WaitingApprovalQueue_Enqueue_PreservesInsertionOrder` | 주문 A, B, C를 순서대로 enqueue | `snapshot()` 호출 | [A, B, C] 순서로 반환 |
-| 2 | `WaitingApprovalQueue_Dequeue_RemovesFrontOnly` | A, B, C가 쌓인 큐 | `dequeue()` 1회 호출 | `front()`가 B, `snapshot()`은 [B, C] |
-| 3 | `WaitingApprovalQueue_IsEmpty_TrueWhenNoOrders` | 빈 큐 | `isEmpty()` 호출 | `true` |
-| 4 | `OrderController_Reserve_CreatesOrderWithReservedStatus` | 등록된 시료 존재 | 시료 ID/고객명/수량 입력 → 확인(Y) | `Order.status == RESERVED`, `OrderRepository`에 저장됨 |
-| 5 | `OrderController_Reserve_SavesBeforeEnqueue` | 위와 동일 | 주문 생성 확정 | `OrderRepository::add` 호출이 `WaitingApprovalQueue::enqueue`보다 먼저 실행됨(순서 검증용 spy/mock) |
-| 6 | `OrderController_Reserve_CancelOnNoConfirm` | 입력 완료 후 확인 단계에서 N 선택 | - | 주문이 생성되지 않고, 큐에도 추가되지 않음 |
-| 7 | `WaitingApprovalQueue_RebuildFromRepository_MatchesOrderNumberAscending` | RESERVED 주문 3건이 파일에 저장된 상태(재시작 시뮬레이션) | `findByStatus(RESERVED)`를 주문번호 오름차순 정렬 후 enqueue | 재구성된 큐 순서가 원래 접수 순서와 동일 |
+| 1 | `WaitingApprovalQueueEnqueuePreservesInsertionOrder` | 주문 A, B, C를 순서대로 enqueue | `snapshot()` 호출 | [A, B, C] 순서로 반환 |
+| 2 | `WaitingApprovalQueueDequeueRemovesFrontOnly` | A, B, C가 쌓인 큐 | `dequeue()` 1회 호출 | `front()`가 B, `snapshot()`은 [B, C] |
+| 3 | `WaitingApprovalQueueIsEmptyTrueWhenNoOrders` | 빈 큐 | `isEmpty()` 호출 | `true` |
+| 4 | `OrderControllerReserveCreatesOrderWithReservedStatus` | 등록된 시료 존재 | 시료 ID/고객명/수량 입력 → 확인(Y) | `Order.status == RESERVED`, `OrderRepository`에 저장됨 |
+| 5 | `OrderControllerReserveSavesBeforeEnqueue` | 위와 동일 | 주문 생성 확정 | `OrderRepository::add` 호출이 `WaitingApprovalQueue::enqueue`보다 먼저 실행됨(순서 검증용 spy/mock) |
+| 6 | `OrderControllerReserveCancelOnNoConfirm` | 입력 완료 후 확인 단계에서 N 선택 | - | 주문이 생성되지 않고, 큐에도 추가되지 않음 |
+| 7 | `WaitingApprovalQueueRebuildFromRepositoryMatchesOrderNumberAscending` | RESERVED 주문 3건이 파일에 저장된 상태(재시작 시뮬레이션) | `findByStatus(RESERVED)`를 주문번호 오름차순 정렬 후 enqueue | 재구성된 큐 순서가 원래 접수 순서와 동일 |
 
 ## 3. Safety Test (선택)
 

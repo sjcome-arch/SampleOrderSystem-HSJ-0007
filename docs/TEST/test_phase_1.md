@@ -12,14 +12,14 @@
 
 | # | 테스트 이름 | Given | When | Then |
 |---|---|---|---|---|
-| 1 | `ProductSpecRepository_Add_PersistsToFile` | 빈 저장소 | `add(spec)` 호출 | `findAll()`에 1건 반영, `data/product_specs.json` 파일에도 반영 |
-| 2 | `ProductSpecRepository_FindById_ReturnsNulloptWhenMissing` | 빈 저장소 | 존재하지 않는 ID로 `findById` | `std::nullopt` 반환 |
-| 3 | `ProductSpecRepository_Update_OverwritesExistingRecord` | 등록된 시료 1건 | `stock`을 바꿔 `update` 호출 | `findById` 결과에 변경된 값 반영 |
-| 4 | `ProductSpecRepository_Remove_DeletesRecord` | 등록된 시료 1건 | `remove(id)` 호출 | `findAll()`에서 사라짐 |
-| 5 | `ProductSpecRepository_Reload_ReflectsExternalFileChange` | 저장소 A로 add 후, 별도 인스턴스 B가 같은 파일을 읽음 | B에서 `reload()` 호출 | B의 `findAll()`에도 A가 추가한 레코드가 보임 |
-| 6 | `OrderRepository_FindByStatus_FiltersCorrectly` | `RESERVED`/`CONFIRMED` 주문 각 1건씩 등록 | `findByStatus(RESERVED)` 호출 | `RESERVED` 주문만 반환 |
-| 7 | `Repository_RestartAfterProcessExit_KeepsData` | 시료/주문 등록 후 Repository 인스턴스를 새로 생성(재시작 시뮬레이션) | 새 인스턴스로 `findAll()` | 이전에 등록한 데이터가 그대로 남아있음 |
-| 8 | `QueueRebuild_OnStartup_MatchesShutdownOrder` | `RESERVED` 주문 3건을 순서대로 생성 후 종료 시뮬레이션 | 새 `WaitingApprovalQueue`를 `findByStatus(RESERVED)` 오름차순 정렬로 재구성 | `snapshot()` 순서가 종료 전 큐 순서와 동일 |
+| 1 | `ProductSpecRepositoryAddPersistsToFile` | 빈 저장소 | `add(spec)` 호출 | `findAll()`에 1건 반영, `data/product_specs.json` 파일에도 반영 |
+| 2 | `ProductSpecRepositoryFindByIdReturnsNulloptWhenMissing` | 빈 저장소 | 존재하지 않는 ID로 `findById` | `std::nullopt` 반환 |
+| 3 | `ProductSpecRepositoryUpdateOverwritesExistingRecord` | 등록된 시료 1건 | `stock`을 바꿔 `update` 호출 | `findById` 결과에 변경된 값 반영 |
+| 4 | `ProductSpecRepositoryRemoveDeletesRecord` | 등록된 시료 1건 | `remove(id)` 호출 | `findAll()`에서 사라짐 |
+| 5 | `ProductSpecRepositoryReloadReflectsExternalFileChange` | 저장소 A로 add 후, 별도 인스턴스 B가 같은 파일을 읽음 | B에서 `reload()` 호출 | B의 `findAll()`에도 A가 추가한 레코드가 보임 |
+| 6 | `OrderRepositoryFindByStatusFiltersCorrectly` | `RESERVED`/`CONFIRMED` 주문 각 1건씩 등록 | `findByStatus(RESERVED)` 호출 | `RESERVED` 주문만 반환 |
+| 7 | `RepositoryRestartAfterProcessExitKeepsData` | 시료/주문 등록 후 Repository 인스턴스를 새로 생성(재시작 시뮬레이션) | 새 인스턴스로 `findAll()` | 이전에 등록한 데이터가 그대로 남아있음 |
+| 8 | `QueueRebuildOnStartupMatchesShutdownOrder` | `RESERVED` 주문 3건을 순서대로 생성 후 종료 시뮬레이션 | 새 `WaitingApprovalQueue`를 `findByStatus(RESERVED)` 오름차순 정렬로 재구성 | `snapshot()` 순서가 종료 전 큐 순서와 동일 |
 
 ## 3. Safety Test (선택)
 

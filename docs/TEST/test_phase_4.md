@@ -13,16 +13,16 @@
 
 | # | 테스트 이름 | Given | When | Then |
 |---|---|---|---|---|
-| 1 | `Approve_SufficientAvailableStock_ConfirmsImmediately` | `availableStock=100`, 주문 수량 30 | 승인 처리 | `status==CONFIRMED`, `availableStock==70`, `stock`은 불변(100) |
-| 2 | `Approve_ExactBoundaryAvailableStock_TreatedAsSufficient` | `availableStock==주문 수량` (경계값) | 승인 처리 | `CONFIRMED` (부족 아님) |
-| 3 | `Approve_InsufficientAvailableStock_TransitionsToProducing` | `availableStock=40`, 주문 수량 100 | 승인 처리 | `status==PRODUCING`, `shortageQuantity==60`, `availableStock==0`, `stock` 불변 |
-| 4 | `Approve_Insufficient_ComputesActualProductionQuantityAndTime` | `shortageQuantity=60`, 수율 0.6, 평균생산시간 2분 | 승인 처리 | `actualProductionQuantity==ceil(60/0.6)==100`, `totalProductionTime==200` |
-| 5 | `Approve_Insufficient_PersistsBeforeEnqueue` | 재고 부족 케이스 | 승인 처리 | `ProductSpecRepository::update`/`OrderRepository::update` 호출이 `ProductionLine::enqueue`보다 먼저 실행됨 |
-| 6 | `Approve_Insufficient_OutputsActualProductionQuantityImmediately` | 재고 부족 케이스 | 승인 처리 결과 화면 출력 | 실 생산량/예상 생산 시간이 승인 즉시 화면에 표시됨(생산 완료까지 지연되지 않음) |
-| 7 | `Reject_Order_TransitionsToRejectedAndKeepsAvailableStock` | `RESERVED` 주문 | 거절 처리 | `status==REJECTED`, `availableStock` 불변 |
-| 8 | `Approve_Reject_RemovesOrderFromWaitingApprovalQueue` | 접수 큐에 주문 존재 | 승인 또는 거절 처리 | 처리된 주문이 `WaitingApprovalQueue`에서 제거됨(dequeue) |
-| 9 | `ExampleScenario_100Stock_30_30_100Orders` | `stock=100`, `availableStock=100` | 주문 30→승인, 주문 30→승인, 주문 100→승인 | 순서대로 `(stock,availableStock)` = (100,70) → (100,40) → (100,0), `shortageQuantity==60` |
-| 10 | `StockInquiryDisplay_ShowsBothStockAndAvailableStock` | 임의의 시료/주문 | 재고 파악 출력 | 화면에 `stock`과 `availableStock` 값이 모두 표시됨 |
+| 1 | `ApproveSufficientAvailableStockConfirmsImmediately` | `availableStock=100`, 주문 수량 30 | 승인 처리 | `status==CONFIRMED`, `availableStock==70`, `stock`은 불변(100) |
+| 2 | `ApproveExactBoundaryAvailableStockTreatedAsSufficient` | `availableStock==주문 수량` (경계값) | 승인 처리 | `CONFIRMED` (부족 아님) |
+| 3 | `ApproveInsufficientAvailableStockTransitionsToProducing` | `availableStock=40`, 주문 수량 100 | 승인 처리 | `status==PRODUCING`, `shortageQuantity==60`, `availableStock==0`, `stock` 불변 |
+| 4 | `ApproveInsufficientComputesActualProductionQuantityAndTime` | `shortageQuantity=60`, 수율 0.6, 평균생산시간 2분 | 승인 처리 | `actualProductionQuantity==ceil(60/0.6)==100`, `totalProductionTime==200` |
+| 5 | `ApproveInsufficientPersistsBeforeEnqueue` | 재고 부족 케이스 | 승인 처리 | `ProductSpecRepository::update`/`OrderRepository::update` 호출이 `ProductionLine::enqueue`보다 먼저 실행됨 |
+| 6 | `ApproveInsufficientOutputsActualProductionQuantityImmediately` | 재고 부족 케이스 | 승인 처리 결과 화면 출력 | 실 생산량/예상 생산 시간이 승인 즉시 화면에 표시됨(생산 완료까지 지연되지 않음) |
+| 7 | `RejectOrderTransitionsToRejectedAndKeepsAvailableStock` | `RESERVED` 주문 | 거절 처리 | `status==REJECTED`, `availableStock` 불변 |
+| 8 | `ApproveRejectRemovesOrderFromWaitingApprovalQueue` | 접수 큐에 주문 존재 | 승인 또는 거절 처리 | 처리된 주문이 `WaitingApprovalQueue`에서 제거됨(dequeue) |
+| 9 | `ExampleScenario100Stock3030100Orders` | `stock=100`, `availableStock=100` | 주문 30→승인, 주문 30→승인, 주문 100→승인 | 순서대로 `(stock,availableStock)` = (100,70) → (100,40) → (100,0), `shortageQuantity==60` |
+| 10 | `StockInquiryDisplayShowsBothStockAndAvailableStock` | 임의의 시료/주문 | 재고 파악 출력 | 화면에 `stock`과 `availableStock` 값이 모두 표시됨 |
 
 ## 3. Safety Test (선택)
 

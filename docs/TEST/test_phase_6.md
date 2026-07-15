@@ -12,14 +12,14 @@
 
 | # | 테스트 이름 | Given | When | Then |
 |---|---|---|---|---|
-| 1 | `Release_ConfirmedOrder_TransitionsToReleased` | `CONFIRMED` 주문 1건 | 출고 처리 | `status == RELEASED`, `releasedAt`이 채워짐 |
-| 2 | `Release_DecreasesStockByOrderQuantity` | `stock=100`, 출고 대상 주문 수량 30 | 출고 처리 | `stock == 70` |
-| 3 | `Release_DoesNotChangeAvailableStock` | `availableStock=40` | 출고 처리 | `availableStock == 40` (불변) |
-| 4 | `Release_RemovesOrderFromConfirmedList` | `CONFIRMED` 주문 목록에 포함 | 출고 처리 완료 | 갱신된 목록에서 해당 주문 제외 |
-| 5 | `Release_PersistsStockBeforeOrderStatus` | 임의 주문 | 출고 처리 | `ProductSpecRepository::update`가 `OrderRepository::update`보다 먼저(또는 동일 트랜잭션 순서로) 호출됨 |
-| 6 | `ReleaseList_ExcludesProducingOrders` | `PRODUCING` 주문 존재 | 출고 가능 목록 조회 | 해당 주문이 목록에 나타나지 않음 |
-| 7 | `ReleaseList_ExcludesRejectedOrders` | `REJECTED` 주문 존재 | 출고 가능 목록 조회 | 해당 주문이 목록에 나타나지 않음 |
-| 8 | `OrderStatus_UsesReleasedNotRelease` | 출고 처리 완료 | 상태 문자열 확인 | `"RELEASED"`로 일관 표기 (`"RELEASE"` 아님) |
+| 1 | `ReleaseConfirmedOrderTransitionsToReleased` | `CONFIRMED` 주문 1건 | 출고 처리 | `status == RELEASED`, `releasedAt`이 채워짐 |
+| 2 | `ReleaseDecreasesStockByOrderQuantity` | `stock=100`, 출고 대상 주문 수량 30 | 출고 처리 | `stock == 70` |
+| 3 | `ReleaseDoesNotChangeAvailableStock` | `availableStock=40` | 출고 처리 | `availableStock == 40` (불변) |
+| 4 | `ReleaseRemovesOrderFromConfirmedList` | `CONFIRMED` 주문 목록에 포함 | 출고 처리 완료 | 갱신된 목록에서 해당 주문 제외 |
+| 5 | `ReleasePersistsStockBeforeOrderStatus` | 임의 주문 | 출고 처리 | `ProductSpecRepository::update`가 `OrderRepository::update`보다 먼저(또는 동일 트랜잭션 순서로) 호출됨 |
+| 6 | `ReleaseListExcludesProducingOrders` | `PRODUCING` 주문 존재 | 출고 가능 목록 조회 | 해당 주문이 목록에 나타나지 않음 |
+| 7 | `ReleaseListExcludesRejectedOrders` | `REJECTED` 주문 존재 | 출고 가능 목록 조회 | 해당 주문이 목록에 나타나지 않음 |
+| 8 | `OrderStatusUsesReleasedNotRelease` | 출고 처리 완료 | 상태 문자열 확인 | `"RELEASED"`로 일관 표기 (`"RELEASE"` 아님) |
 
 ## 3. Safety Test (선택)
 
