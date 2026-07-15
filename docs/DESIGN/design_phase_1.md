@@ -140,6 +140,11 @@ SampleOrderSystem-HSJ-0007/           # vcxproj 루트
 
 ### 3.2 `Order` 클래스 필드 정의 (`Model/order.h` / `.cpp`)
 
+- `Time`은 `using Time = std::chrono::system_clock::time_point;`로 정의한다(특정 시각을 나타냄).
+  `totalProductionTime`(생산에 걸리는 "기간", 분 단위 `double`)과는 **다른 개념**이므로 타입도
+  다르다 — 서로 바로 더할 수 없고, `double`(분)을 `chrono::duration`으로 변환한 뒤에만
+  `Time`에 더할 수 있다(완료 예정 시간 계산 방법은 [design_phase_5.md - 4.2](./design_phase_5.md#42-완료-예정-시간-계산) 참조).
+
 ```cpp
 class Order {
 public:

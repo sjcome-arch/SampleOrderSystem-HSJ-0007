@@ -53,6 +53,8 @@ public:
     const Order& currentOrder() const;      // 현재 처리 중(front) 주문 조회
     void completeCurrent();                 // 생산 완료: PRODUCING → CONFIRMED, 재고 반영, pop
     std::vector<Order> snapshot() const;    // "대기 주문 확인"용, FIFO 순서(front→back) 그대로 반환
+    void tick(Time now);                    // 완료 판정: front의 완료 예정 시각이 now를 지났으면
+                                             // completeCurrent()를 반복 호출 (4.3 참조)
 
 private:
     std::queue<Order> productionQueue_;
@@ -91,6 +93,31 @@ private:
     `productionStartedAt`이라는 절대 시각 기준점 위에서 누적합으로 구현한다.
 - 큐는 뒤에서만 추가되고 앞에서만 제거되므로, 이미 큐에 있는 항목들의 완료 예정 시간은 새 주문이
   추가되어도 바뀌지 않는다 — 따라서 저장하지 않고 매번 계산해도 항상 같은 결과를 준다.
+- **타입 주의**: `totalProductionTime`은 "기간"을 나타내는 `double`(분)이고, `productionStartedAt`은
+  "시각"을 나타내는 `Time`(`std::chrono::system_clock::time_point`, [design_phase_1.md - 3.2](./design_phase_1.md#32-order-클래스-필드-정의-modelorderh--cpp) 참조)이다.
+  서로 타입이 달라 바로 더할 수 없으므로, `double`(분)을 `chrono::duration`으로 변환한 뒤에만
+  `Time`에 더한다:
+  ```cpp
+  Time expectedCompletion(const Order& order) {
+      auto minutes = std::chrono::duration<double, std::ratio<60>>(order.totalProductionTime);
+      return order.productionStartedAt.value()
+          + std::chrono::duration_cast<Time::duration>(minutes);
+  }
+  ```
+  대기 항목의 완료 예정 시간은 이 `expectedCompletion(front)`에 자신 이전 항목들의
+  `totalProductionTime` 합(마찬가지로 `chrono::duration`으로 변환)을 더해서 계산한다.
+
+### 4.3 완료 판정 시점 (`tick`)
+
+- 실시간 타이머나 별도 스레드를 두지 않고, **메뉴 진입/화면 갱신 시점마다 현재 시각과 비교하는
+  지연 평가(lazy check)** 방식을 사용한다.
+- `ProductionLine::tick(Time now)`은 `!isEmpty() && now >= expectedCompletion(currentOrder())`인
+  동안 반복해서 `completeCurrent()`를 호출한다(사용자가 한동안 다른 메뉴에 머물러 여러 건이
+  동시에 끝나 있을 수 있으므로 while 루프로 처리한다).
+- `tick()`은 `MainMenuController`가 메인 메뉴를 그릴 때마다 호출한다(REQUIREMENT.md 5.1 "현재
+  시간" 표시와 같은 타이밍). `ProductionLineController`/`MonitoringController`/`ReleaseController`
+  진입 시에도 한 번 더 호출해 화면에 보이는 상태가 항상 최신이 되도록 한다.
+- `now`는 `std::chrono::system_clock::now()`를 그대로 사용한다.
 
 ## 5. 검증 방법 (Verify)
 
@@ -101,6 +128,8 @@ private:
 - 생산 큐가 비어 있을 때 `WAITING` 상태와 "현재 처리 중인 주문 없음" 안내가 출력되는지 확인한다.
 - 여러 건이 대기 중일 때, 뒤쪽 대기 항목의 완료 예정 시간이 `productionStartedAt` 기준으로
   앞선 모든 주문의 총 생산 시간을 정확히 누적한 값과 같은지 확인한다.
+- 완료 예정 시각이 지난 뒤 아무 메뉴에나 진입했을 때 `tick()`이 호출되어 해당 주문이 자동으로
+  `CONFIRMED`로 전환되는지, 여러 건이 동시에 기한을 넘겼을 때도 모두 처리되는지 확인한다.
 
 ## 6. 리뷰 포인트 (Review)
 
