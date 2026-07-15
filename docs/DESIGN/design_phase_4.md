@@ -17,24 +17,32 @@
 
 - `WaitingApprovalQueue`에서 FIFO 순서로 주문을 조회/처리한다 ([design_phase_3.md](./design_phase_3.md) 참조).
 - 승인 처리 분기:
-  - 재고 파악 출력 → 재고 충분 시 `CONFIRMED` 전환
-  - 재고 파악 출력 → 재고 부족 시 `PRODUCING` 전환 + 생산 큐([design_phase_5.md](./design_phase_5.md) 참조)에 등록
-- 거절 처리: 즉시 `REJECTED` 전환 (정상 흐름에서 제외, 모니터링에서도 제외)
+  - 재고 파악 출력 → 재고 충분 시 `CONFIRMED` 전환 → 즉시 `OrderRepository::update(order)`로 저장
+  - 재고 파악 출력 → 재고 부족 시 `PRODUCING` 전환 + 생산 큐([design_phase_5.md](./design_phase_5.md) 참조)에 등록 (2.1 참조)
+- 거절 처리: 즉시 `REJECTED` 전환 → 즉시 `OrderRepository::update(order)`로 저장 (정상 흐름에서
+  제외, 모니터링에서도 제외)
 - 처리 결과 출력 (주문번호, 상태 변경 내역, 재고 부족 시 실 생산량/예상 생산 시간 포함)
 
-### 2.1 승인(재고 부족) 시 실 생산량 계산 및 생산 큐 등록
+### 2.1 승인(재고 부족) 시 실 생산량 계산, 저장, 생산 큐 등록
 
 - REQUIREMENT.md 5.4의 "처리 결과 출력"은 재고 부족으로 승인된 주문에 대해 **그 시점에** 실
   생산량과 예상 생산 시간을 함께 출력하도록 요구한다. 따라서 실 생산량 계산은 생산 큐가 나중에
   처리할 때가 아니라, **승인 처리(본 Phase)의 그 시점에 완료**되어야 한다.
 - 계산 절차 (공식 자체는 [design_phase_5.md - 실 생산량과 수율 처리 방식](./design_phase_5.md#3-실-생산량과-수율-처리-방식) 참조):
-  1. 부족분 = 주문 수량 - 승인 시점 재고
+  1. `shortageQuantity` = 주문 수량 - `stockAtApproval`(승인 시점 재고)
   2. `ProductSpecRepository`에서 해당 시료의 수율/평균 생산시간을 조회
-  3. 실 생산량 = `ceil(부족분 / 수율)`, 총 생산 시간 = 평균 생산시간 * 실 생산량 (design_phase_5.md의 공식을 그대로 사용)
-  4. 계산 결과(실 생산량, 총 생산 시간)를 `Order`(또는 생산 큐 등록 항목)에 채워 넣고 화면에 출력
-- 계산이 끝난 `Order`를 `ProductionLine`의 생산 큐에 등록한다. **Phase 5는 이 값을 재계산하지
-  않고 그대로 사용**하여 FIFO 순서 처리·완료 시 재고 반영·예상 완료 시간 누적만 담당한다
-  (계산 시점과 처리 시점의 역할 분리는 [design_phase_5.md - 구현 목표](./design_phase_5.md#1-구현-목표-why) 참조).
+  3. `actualProductionQuantity` = `ceil(shortageQuantity / 수율)`, `totalProductionTime` = 평균
+     생산시간 * `actualProductionQuantity` (design_phase_5.md의 공식을 그대로 사용)
+  4. 위 네 필드(`stockAtApproval`/`shortageQuantity`/`actualProductionQuantity`/`totalProductionTime`)와
+     `status = PRODUCING`을 `Order`에 채운다(필드 정의는
+     [design_phase_1.md - 3.2 `Order` 클래스](./design_phase_1.md#32-order-클래스-필드-정의-modelorderh--cpp) 참조).
+- **동기화 시점**: 위 필드를 채운 직후, **다른 어떤 처리보다도 먼저** `OrderRepository::update(order)`를
+  호출해 `data/orders.json`에 즉시 반영한다. 저장이 성공한 뒤에야 화면에 결과를 출력하고,
+  `ProductionLine::enqueue(order)`를 호출해 메모리 큐에 반영한다. 배치로 모아 저장하거나 생산 완료
+  시점까지 미루지 않는다(저장 순서 원칙은 [design_phase_1.md - 3.1](./design_phase_1.md#31-메모리-큐와-파일-동기화-원칙) 참조).
+- **Phase 5는 이 값을 재계산하지 않고 그대로 사용**하여 FIFO 순서 처리·완료 시 재고 반영·예상
+  완료 시간 누적만 담당한다(계산 시점과 처리 시점의 역할 분리는
+  [design_phase_5.md - 구현 목표](./design_phase_5.md#1-구현-목표-why) 참조).
 
 ## 3. 검증 방법 (Verify)
 
