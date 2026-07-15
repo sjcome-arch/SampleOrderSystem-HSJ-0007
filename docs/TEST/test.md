@@ -1,4 +1,4 @@
-# test.md - Verify 프로세스
+# test.md - Test 및 Verify 프로세스
 
 > AI(Coding Agent)가 작성한 코드를 사람이 리뷰하기 전에 거쳐야 하는 자동/반자동 검증 단계를 정의한다.
 > 참고: `[CRA_AI] Day2_2_Test, Verify, Report, PR.pdf`의 Verify Harness 개념을 이 프로젝트에 맞게 구체화했다.
