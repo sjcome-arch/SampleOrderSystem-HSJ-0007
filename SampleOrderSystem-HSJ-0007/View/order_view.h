@@ -9,7 +9,6 @@
 // 시료 주문 입력·확인 및 주문 승인/거절 화면 출력 (REQUIREMENT.md 5.3, 5.4).
 class OrderView {
 public:
-    int promptMenuChoice() const;
     ReserveOrderInput promptReserveInput() const;
     bool promptConfirm(const ReserveOrderInput& input) const;
     void showReserveResult(ReserveOrderResult result) const;

@@ -193,6 +193,7 @@
     <ClInclude Include="View\release_view.h" />
     <ClInclude Include="View\dummy_data_generator_view.h" />
     <ClInclude Include="Controller\main_menu_controller.h" />
+    <ClInclude Include="Controller\main_menu_types.h" />
     <ClInclude Include="Controller\product_spec_controller.h" />
     <ClInclude Include="Controller\product_spec_types.h" />
     <ClInclude Include="Controller\order_controller.h" />

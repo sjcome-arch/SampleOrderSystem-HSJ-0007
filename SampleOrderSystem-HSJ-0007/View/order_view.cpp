@@ -2,13 +2,6 @@
 
 #include <iostream>
 
-int OrderView::promptMenuChoice() const {
-    std::cout << "\n[시료 주문]\n1. 주문 접수\n0. 뒤로가기\n선택: ";
-    int choice = 0;
-    std::cin >> choice;
-    return choice;
-}
-
 ReserveOrderInput OrderView::promptReserveInput() const {
     ReserveOrderInput input;
     std::cout << "시료 ID: ";

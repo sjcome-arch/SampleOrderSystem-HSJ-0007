@@ -96,39 +96,38 @@ RejectNextResult OrderController::rejectNext() {
     return RejectNextResult{false, order};
 }
 
-void OrderController::run() {
-    int choice = view_.promptMenuChoice();
-    if (choice == 1) {
-        ReserveOrderInput input = view_.promptReserveInput();
-        while (true) {
-            if (!productSpecRepository_.findById(input.productSpecId).has_value()) {
-                view_.showReserveResult(ReserveOrderResult::ProductSpecNotFound);
-                input = view_.promptReserveInput();
-                continue;
-            }
-            if (input.quantity <= 0) {
-                view_.showReserveResult(ReserveOrderResult::InvalidQuantity);
-                input = view_.promptReserveInput();
-                continue;
-            }
-            break;
+void OrderController::runReserve() {
+    ReserveOrderInput input = view_.promptReserveInput();
+    while (true) {
+        if (!productSpecRepository_.findById(input.productSpecId).has_value()) {
+            view_.showReserveResult(ReserveOrderResult::ProductSpecNotFound);
+            input = view_.promptReserveInput();
+            continue;
         }
-        bool confirm = view_.promptConfirm(input);
-        ReserveOrderResult result = reserveOrder(input, confirm);
-        view_.showReserveResult(result);
-    } else if (choice == 2) {
-        view_.showWaitingApprovalList(waitingApprovalQueue_.snapshot());
-    } else if (choice == 3) {
-        auto next = peekNextForApproval();
-        if (!next.has_value()) {
-            view_.showNoOrderToProcess();
-            return;
+        if (input.quantity <= 0) {
+            view_.showReserveResult(ReserveOrderResult::InvalidQuantity);
+            input = view_.promptReserveInput();
+            continue;
         }
-        view_.showStockInquiry(next->first, next->second);
-        if (view_.promptApproveOrReject()) {
-            view_.showApproveResult(approveNext());
-        } else {
-            view_.showRejectResult(rejectNext());
-        }
+        break;
+    }
+    bool confirm = view_.promptConfirm(input);
+    ReserveOrderResult result = reserveOrder(input, confirm);
+    view_.showReserveResult(result);
+}
+
+void OrderController::runApproval() {
+    view_.showWaitingApprovalList(waitingApprovalQueue_.snapshot());
+
+    auto next = peekNextForApproval();
+    if (!next.has_value()) {
+        view_.showNoOrderToProcess();
+        return;
+    }
+    view_.showStockInquiry(next->first, next->second);
+    if (view_.promptApproveOrReject()) {
+        view_.showApproveResult(approveNext());
+    } else {
+        view_.showRejectResult(rejectNext());
     }
 }

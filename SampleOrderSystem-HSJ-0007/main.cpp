@@ -58,7 +58,8 @@ int main() {
     DummyDataGeneratorController dummyDataGeneratorController(productSpecRepository, orderRepository,
                                                                 dummyDataGeneratorView);
 
-    MainMenuController mainMenuController(mainMenuView, productSpecController, orderController, monitoringController,
+    MainMenuController mainMenuController(mainMenuView, productSpecRepository, orderRepository, productionLine,
+                                           productSpecController, orderController, monitoringController,
                                            productionLineController, releaseController,
                                            dummyDataGeneratorController);
     mainMenuController.run();
