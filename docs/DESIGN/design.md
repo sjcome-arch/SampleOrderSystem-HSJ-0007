@@ -56,7 +56,7 @@
 | 주안점 | 대응 방안 |
 |---|---|
 | CLAUDE.md, PRD.md 등 문서 관리 | `REQUIREMENT.md`(PRD 역할) / `CLAUDE.md`(에이전트 가이드) / `docs/DESIGN/design.md` + `design_phase_N.md`(구현 설계) / `docs/TEST/test.md`(검증 절차)로 문서 체계를 구성하고, 요구사항·설계 변경 시마다 즉시 갱신한다. |
-| Harness 도입 | 단위 테스트를 실제로 실행/집계할 수 있는 테스트 하니스를 구성한다. vcpkg로 `Catch2`(또는 `GoogleTest`)를 추가하고, 별도 `Tests` vcxproj(또는 CTest 연동)를 솔루션에 추가해 `msbuild` 한 번으로 전체 테스트가 실행되도록 한다. AI 작업 지시 시 "개발 → Verify → Human Review" 순서를 지키는 구체적 절차는 [test.md](../TEST/test.md) 참조. |
+| Harness 도입 | `GoogleTest`/`gMock`(NuGet 패키지)로 별도 `Tests` vcxproj를 솔루션에 추가해 `msbuild` 한 번으로 전체 테스트가 실행되도록 한다(확정 근거는 [6.4](#64-테스트-하니스-googletestgmock) 참조). AI 작업 지시 시 "개발 → Verify → Human Review" 순서를 지키는 구체적 절차는 [test.md](../TEST/test.md) 참조. |
 | Test | Model 계층(상태 전이, 실 생산량/수율 계산, FIFO 큐 동작)부터 우선 테스트하고, Repository CRUD, Controller 분기(재고 충분/부족)까지 확장한다. 테스트 파일은 `Tests/Model/*.cpp`, `Tests/Repository/*.cpp`로 대상 계층별로 분리한다. TDD로 진행할 경우 RED(테스트 작성)–GREEN(최소 구현)–REVIEW(사람 검토) 사이클을 따른다. |
 | Clean Code | 코딩 컨벤션([CLAUDE.md - 코딩 컨벤션 및 구현 규칙](../../CLAUDE.md#코딩-컨벤션-및-구현-규칙))을 지키고, 함수/클래스 단위를 작게 유지한다(PR 100라인 이내). |
 | Commit 이력 | 기능 단위로 `[feature]/[fix]/[refactor]/[test]/[docs]/[chore]` 접두사를 사용해 커밋하며, 커밋 전 항상 사용자 리뷰를 받는다([CLAUDE.md - 커밋 전 리뷰 절차](../../CLAUDE.md#커밋-전-리뷰-절차)). |
@@ -66,7 +66,6 @@
 아래 항목은 구현을 진행하며 결정되는 대로 이 문서에 추가한다.
 
 - 시료 ID 채번 규칙 (예: `S-NNN`)
-- vcpkg 도입 여부 및 매니페스트(`vcpkg.json`) 구성
 
 ## 6. 결정된 사항
 
@@ -110,3 +109,24 @@
 - 별도 프로세스가 아니므로 `reload()` 같은 재조회 장치도 필요 없다 — 메인 애플리케이션이 Repository
   인스턴스를 그대로 공유하기 때문이다(자세한 근거는 [design_phase_8.md - 1](./design_phase_8.md#1-데이터-모니터링-tool) 참조).
 - Dummy 데이터 생성 Tool(6.2)과 달리 새 메뉴 항목이 추가되지 않는다는 점에 유의한다.
+
+### 6.4 테스트 하니스 (GoogleTest/gMock)
+
+- **프레임워크**: `GoogleTest` + `gMock`. `Catch2`는 사용하지 않는다.
+- **의존성 확보 방식**: **NuGet 패키지**(예: `Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn`)로
+  설치한다. vcpkg는 도입하지 않는다(`vcpkg.json` 매니페스트 불필요).
+- **빌드 통합**: `SampleOrderSystem-HSJ-0007.slnx`에 **별도 `Tests` vcxproj**를 추가한다. CTest는
+  사용하지 않는다. `msbuild SampleOrderSystem-HSJ-0007.slnx /p:Configuration=Debug /p:Platform=x64`
+  한 번으로 본 프로젝트와 `Tests` 프로젝트가 함께 빌드되고, 테스트 실행 파일이 생성된다.
+- **gMock 활용**: `test_phase_3.md`/`test_phase_4.md`/`test_phase_6.md`에 있는 "저장이 먼저
+  일어나는지(순서 검증)" 류의 테스트 케이스는 `ProductSpecRepository`/`OrderRepository`를 gMock
+  `MOCK_METHOD`로 목(mock) 객체화하고, `testing::InSequence` 또는 `EXPECT_CALL(...).Times(1)`의
+  호출 순서 지정으로 검증한다(예: `orderRepository.update()`가 `productionLine.enqueue()`보다
+  먼저 호출되는지).
+  - 이를 위해 `ProductSpecRepository`/`OrderRepository`는 순수 클래스가 아니라 **인터페이스
+    (추상 기반 클래스)를 두고 실제 구현을 상속**하는 구조로 설계한다(테스트에서는 gMock 목
+    클래스로 대체). 인터페이스 분리 세부사항은 `design_phase_1.md`에 반영이 필요하면 별도로
+    다룬다.
+- 테스트 파일 네이밍은 GoogleTest 관례에 따라 `TEST(TestSuiteName, TestName)` 또는
+  `TEST_F(Fixture, TestName)`을 사용하고, `test_phase_N.md`에 정리된 테스트 이름(PascalCase)을
+  `TestName`으로 그대로 사용한다.
