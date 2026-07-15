@@ -142,7 +142,7 @@ SampleOrderSystem-HSJ-0007/           # vcxproj 루트
 | 주안점 | 대응 방안 |
 |---|---|
 | CLAUDE.md, PRD.md 등 문서 관리 | `REQUIREMENT.md`(PRD 역할) / `CLAUDE.md`(에이전트 가이드) / `docs/DESIGN/design.md`(구현 설계, 본 문서)로 문서 체계를 구성하고, 요구사항·설계 변경 시마다 즉시 갱신한다. |
-| Harness 도입 | 단위 테스트를 실제로 실행/집계할 수 있는 테스트 하니스를 구성한다. vcpkg로 `Catch2`(또는 `GoogleTest`)를 추가하고, 별도 `Tests` vcxproj(또는 CTest 연동)를 솔루션에 추가해 `msbuild` 한 번으로 전체 테스트가 실행되도록 한다. AI 작업 지시 시 "개발 → Verify → Human Review" 순서를 지키는 구체적 절차는 [vierify.md](../VIERIFY/vierify.md) 참조. |
+| Harness 도입 | 단위 테스트를 실제로 실행/집계할 수 있는 테스트 하니스를 구성한다. vcpkg로 `Catch2`(또는 `GoogleTest`)를 추가하고, 별도 `Tests` vcxproj(또는 CTest 연동)를 솔루션에 추가해 `msbuild` 한 번으로 전체 테스트가 실행되도록 한다. AI 작업 지시 시 "개발 → Verify → Human Review" 순서를 지키는 구체적 절차는 [test.md](../TEST/test.md) 참조. |
 | Test | Model 계층(상태 전이, 실 생산량/수율 계산, FIFO 큐 동작)부터 우선 테스트하고, Repository CRUD, Controller 분기(재고 충분/부족)까지 확장한다. 테스트 파일은 `Tests/Model/*.cpp`, `Tests/Repository/*.cpp`로 대상 계층별로 분리한다. TDD로 진행할 경우 RED(테스트 작성)–GREEN(최소 구현)–REVIEW(사람 검토) 사이클을 따른다. |
 | Clean Code | 코딩 컨벤션([CLAUDE.md - 코딩 컨벤션 및 구현 규칙](../../CLAUDE.md#코딩-컨벤션-및-구현-규칙))을 지키고, 함수/클래스 단위를 작게 유지한다(PR 100라인 이내). |
 | Commit 이력 | 기능 단위로 `[feature]/[fix]/[refactor]/[test]/[docs]/[chore]` 접두사를 사용해 커밋하며, 커밋 전 항상 사용자 리뷰를 받는다([CLAUDE.md - 커밋 전 리뷰 절차](../../CLAUDE.md#커밋-전-리뷰-절차)). |
@@ -163,7 +163,7 @@ SampleOrderSystem-HSJ-0007/           # vcxproj 루트
   1. PLAN 작성 (AI) → 사람 검토
   2. 설계 문서 작성 (AI) → 사람 검토
   3. 구현 지시
-  4. **Verify** ([vierify.md](../VIERIFY/vierify.md) 참조)
+  4. **Verify** ([test.md](../TEST/test.md) 참조)
   5. 사람 리뷰 → 커밋 (커밋 전 리뷰 절차는 [CLAUDE.md](../../CLAUDE.md#커밋-전-리뷰-절차) 참조)
 - Phase 분할 기준(대략): 메뉴 1개(REQUIREMENT.md 5.1~5.7 중 하나) 또는 그 하위 기능 1~2개
   정도를 한 Phase로 삼는다. 예: "5.2 시료 관리 - 시료 등록"만으로 Phase 1개.
