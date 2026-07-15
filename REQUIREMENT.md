@@ -127,7 +127,7 @@
   - 주문번호, 시료(ID/시료명), 고객명, 주문 수량, 현재 상태(`RESERVED`)
 
 > 구현 참고: `RESERVED` 주문의 큐잉/처리 순서(FIFO) 등 상세 구현 방식은
-> [design_phase_3.md - 주문 접수 큐](./docs/DESIGN/design_phase_3.md#1-주문-접수-큐-reservation-queue) 참조.
+> [design_phase_3.md - 주문 접수 큐](./docs/DESIGN/design_phase_3.md#1-주문-접수-큐-waiting-approval-queue) 참조.
 
 ### 5.4 주문 승인/거절
 
