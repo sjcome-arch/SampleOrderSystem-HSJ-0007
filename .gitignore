@@ -1,0 +1,18 @@
+# Visual Studio / MSBuild
+.vs/
+*.user
+Debug/
+Release/
+x64/
+x86/
+out/
+obj/
+bin/
+*.ilk
+*.pdb
+*.obj
+*.exe
+*.log
+
+# Course material PDFs (not part of the project)
+*.pdf
