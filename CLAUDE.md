@@ -7,8 +7,11 @@
 "반도체 시료 생산주문관리 시스템" (SampleOrderSystem) — 가상의 반도체 회사 S-Semi의
 시료(Sample) 생산 및 주문 관리를 위한 **콘솔 기반** 애플리케이션.
 
-전체 요구사항은 [REQUIREMENT.md](./REQUIREMENT.md)를 참조한다. 원본 과제 PDF:
-`[CRA_AI] Day3_개인과제_반도체시료관리.pdf`.
+전체 요구사항은 [REQUIREMENT.md](./REQUIREMENT.md)를, 구현 방식(자료구조/알고리즘 등 상세 설계)은
+[design.md](./docs/DESIGN/design.md)를 참조한다. 원본 과제 PDF: `[CRA_AI] Day3_개인과제_반도체시료관리.pdf`.
+
+- 요구사항(무엇을 만들 것인가)이 바뀌면 `REQUIREMENT.md`를, 구현 결정(어떻게 만들 것인가)이 바뀌면
+  `docs/DESIGN/design.md`를 업데이트한다.
 
 ## 기술 스택 및 빌드
 
@@ -24,7 +27,7 @@ msbuild SampleOrderSystem-HSJ-0007.slnx /p:Configuration=Debug /p:Platform=x64
 
 ## 도메인 핵심 규칙
 
-- **시료(Sample)**: 시스템의 기본 단위. 속성 = 시료 ID, 이름, 평균 생산시간, 수율.
+- **시료(Sample)**: 시스템의 기본 단위. 속성 = 시료 ID, 시료명, 평균 생산시간, 수율.
   등록된 시료만 주문 가능.
 - **주문(Order) 상태 머신**:
   `RESERVED → (승인/거절)`
@@ -33,6 +36,8 @@ msbuild SampleOrderSystem-HSJ-0007.slnx /p:Configuration=Debug /p:Platform=x64
   - 거절 → `REJECTED` (정상 흐름 제외, 모니터링에서도 제외)
   - `PRODUCING` → 생산 완료 시 → `CONFIRMED`
   - `CONFIRMED` → 출고 처리 시 → `RELEASED`
+- **주문 접수 큐**: `RESERVED` 주문은 별도 큐에 적재되며, 승인/거절 처리는 **FIFO** 순서로 진행한다.
+  생산 큐와는 별개의 큐이다 (자세한 내용은 [design.md](./docs/DESIGN/design.md) 참조).
 - **생산 라인**: 단일 라인, 시료 하나씩 생산. 생산 큐는 **FIFO**.
   - 실 생산량 = `ceil(부족분 / 수율)`
   - 총 생산 시간 = `평균 생산시간 * 실 생산량`
